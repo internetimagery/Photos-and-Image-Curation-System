@@ -46,6 +46,13 @@ def link(source, destination):
         return destination
     return None
 
+def mkdir(path):
+    """
+    Make all directories asked for
+    """
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
 # Command Line functionality
 if __name__ == "__main__":
     import os
@@ -56,6 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("-u", help="Search up for a file UP", action="store_true")
     parser.add_argument("-d", help="Search up for a file DOWN", action="store_true")
     parser.add_argument("-l", help="Link two files", action="store_true")
+    parser.add_argument("-m", help="Make a directory", action="store_true")
 
     args = parser.parse_args()
     root = os.getcwd()
@@ -72,3 +80,6 @@ if __name__ == "__main__":
     elif args.l:
         if inp and out:
             print(link(inp, out))
+    elif args.m:
+        if inp:
+            mkdir(inp)
