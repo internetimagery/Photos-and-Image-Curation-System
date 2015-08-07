@@ -40,14 +40,15 @@ class DateStore(object):
     """
     Link files in a folder structure based on date
     """
-    def __init__(s, root):
+    def __init__(s, root, trash="trash"):
         s.root = root # root of the structure
+        s.trash = os.path.join(root, trash)
         s.defStruct = "%Y/%m/%d" # Default structure
 
     """
     link an image into the structure
     """
-    def store(s, filepath, structure=None):
+    def put(s, filepath, structure=None):
         structure = structure if structure else s.defStruct
         if os.path.isfile(filepath): # Check the requested file exists
             filename, ext = os.path.splitext(os.path.basename(filepath))
@@ -71,11 +72,33 @@ class DateStore(object):
                 with open(imgpath, "wb") as w:
                     w.write(f.read())
             return {
-                "id"        : fp + ext,
-                "path"      : imgpath
+                "id"    : fp + ext,
+                "path"  : imgpath
                 }
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
+
+    """
+    Get a file given its ID
+    """
+    def get(s, fileID):
+        filename, ext = os.path.splitext(fileID)
+        results = utility.SearchDown(s.root, filename)
+        return {
+            "path"  : results[0],
+            "id"    : os.path.basename(results[0])
+        } if len(results) == 1 else None
+
+    """
+    Remove file from Storage
+    """
+    def remove(s, fileID):
+        result = s.get(fileID) # Test if file is there
+        if result:
+            utility.mkdir(s.trash)
+            os.link(result["path"], s.trash)
+            os.remove(result["path"])
+            os.removedirs(os.path.dirname(result["path"]))
 
 
 # Command Line functionality
@@ -83,11 +106,18 @@ if __name__ == "__main__":
     import os
     from argparse import ArgumentParser
     parser = ArgumentParser(description="Store file in a directory based on date")
-    parser.add_argument("file", help="The file you wish to store", type=str)
+    parser.add_argument("-i", help="The file you wish to store", type=str)
+    parser.add_argument("-o", help="The file you wish to retrieve", type=str)
+    parser.add_argument("-r", help="The file you wish to remove", type=str)
     parser.add_argument("-s", help="Scheme for directory", type=str)
     args = parser.parse_args()
     root = os.getcwd()
-    path = os.path.realpath(os.path.join(root, args.file))
 
     app = DateStore(root)
-    print(app.store(path))
+    if args.i:
+        path = os.path.realpath(os.path.join(root, args.i))
+        print(app.put(path))
+    elif args.o:
+        print(app.get(args.o))
+    elif args.r:
+        print(app.remove(args.r))

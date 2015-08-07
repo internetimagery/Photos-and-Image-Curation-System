@@ -53,6 +53,18 @@ def mkdir(path):
     if not os.path.isdir(path):
         os.makedirs(path)
 
+def unique(path):
+    """
+    Create a unique File
+    """
+    filename, ext = os.path.splitext(path)
+    dirpath = os.path.basename(path)
+    count = 0
+    while os.path.exists(path):
+        path = os.path.join(dirpath, "%s_%s%s" % (filename, count, ext))
+        count += 1
+    return path
+
 # Command Line functionality
 if __name__ == "__main__":
     import os
@@ -63,6 +75,7 @@ if __name__ == "__main__":
     parser.add_argument("-u", help="Search up for a file UP", action="store_true")
     parser.add_argument("-d", help="Search up for a file DOWN", action="store_true")
     parser.add_argument("-l", help="Link two files", action="store_true")
+    parser.add_argument("-p", help="Create a unique path", type=str)
     parser.add_argument("-m", help="Make a directory", action="store_true")
 
     args = parser.parse_args()
@@ -83,3 +96,6 @@ if __name__ == "__main__":
     elif args.m:
         if inp:
             mkdir(inp)
+    elif args.p:
+        path = os.path.realpath(os.path.join(root, args.p))
+        print(unique(path))
