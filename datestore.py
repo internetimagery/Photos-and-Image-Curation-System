@@ -82,8 +82,8 @@ class DateStore(object):
     Get a file given its ID
     """
     def get(s, fileID):
-        filename, ext = os.path.splitext(fileID)
-        results = utility.SearchDown(s.root, filename)
+        filename, ext = os.path.splitext(os.path.basename(fileID))
+        results = utility.SearchDown(s.root, filename, ["trash"])
         return {
             "path"  : results[0],
             "id"    : os.path.basename(results[0])
@@ -96,10 +96,13 @@ class DateStore(object):
         result = s.get(fileID) # Test if file is there
         if result:
             utility.mkdir(s.trash)
-            os.link(result["path"], s.trash)
-            os.remove(result["path"])
-            os.removedirs(os.path.dirname(result["path"]))
-
+            trash = utility.unique(os.path.join(s.trash, os.path.basename(result["path"])))
+            os.link(result["path"], trash)
+            try:
+                os.remove(result["path"])
+                os.removedirs(os.path.dirname(result["path"]))
+            except OSError:
+                pass
 
 # Command Line functionality
 if __name__ == "__main__":
@@ -120,4 +123,4 @@ if __name__ == "__main__":
     elif args.o:
         print(app.get(args.o))
     elif args.r:
-        print(app.remove(args.r))
+        app.remove(args.r)

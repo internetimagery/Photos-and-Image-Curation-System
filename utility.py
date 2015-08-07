@@ -18,7 +18,7 @@ def SearchUp(root, filename):
         root = os.path.dirname(root)
     return None
 
-def SearchDown(root, filename):
+def SearchDown(root, filename, ignore=[]):
     """
     Search for files by moving down the tree
     """
@@ -29,7 +29,7 @@ def SearchDown(root, filename):
         if files:
             for f in files:
                 path = os.path.join(base, f)
-                if os.path.isdir(path):
+                if os.path.isdir(path) and f not in ignore:
                     result += recurse(path)
                 else:
                     if reg.match(f):
