@@ -67,13 +67,16 @@ class DateStore(object):
                 imgpath = os.path.join(s.root, time.strftime(structure, date))
                 utility.mkdir(imgpath)
                 imgpath = os.path.join(imgpath, fp + ext)
-                utility.link(filepath, imgpath)
+                f.seek(0)
+                with open(imgpath, "wb") as w:
+                    w.write(f.read())
             return {
                 "id"        : fp + ext,
                 "path"      : imgpath
                 }
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
+
 
 # Command Line functionality
 if __name__ == "__main__":
