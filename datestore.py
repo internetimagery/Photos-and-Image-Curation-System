@@ -68,7 +68,10 @@ class DateStore(object):
                 utility.mkdir(imgpath)
                 imgpath = os.path.join(imgpath, fp + ext)
                 utility.link(filepath, imgpath)
-            return imgpath
+            return {
+                "id"        : fp + ext,
+                "path"      : imgpath
+                }
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
 
