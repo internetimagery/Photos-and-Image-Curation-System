@@ -28,13 +28,10 @@
 # %Z  Time zone name (no charact
 # %%  A literal ’%’ character.
 
-
 import os, re
 import time
 import fingerprint
 import metadata
-
-
 
 class DateStore(object):
     """
@@ -59,10 +56,13 @@ class DateStore(object):
                 for m in meta: # Get image metadata if it exists
                     if reg.search(m):
                         date = time.strptime(str(meta[m]), "%Y:%m:%d %H:%M:%S")
-            imgpath = os.path.join(s.root, time.strftime(structure, date), filename)
-            if not os.path.isfile(imgpath):
-                os.makedirs(os.path.dirname(imgpath))
-                os.link(filepath, imgpath)
+            imgpath = os.path.join(s.root, time.strftime(structure, date))
+            if not os.path.isdir(imgpath):
+                os.makedirs(imgpath)
+            imgpath = os.path.join(imgpath, filename)
+            if os.path.isdir(imgpath):
+                os.remove(imgpath)
+            os.link(filepath, imgpath)
             return imgpath
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
@@ -79,4 +79,4 @@ if __name__ == "__main__":
     path = os.path.realpath(os.path.join(root, args.file))
 
     app = DateStore(root)
-    print app.link(path)
+    print(app.link(path))
