@@ -29,7 +29,7 @@
 # %%  A literal ’%’ character.
 
 
-import os
+import os, re
 import time
 import fingerprint
 import metadata
@@ -38,23 +38,32 @@ import metadata
 
 class DateStore(object):
     """
-    Store files in a folder structure based on date
+    Link files in a folder structure based on date
     """
     def __init__(s, root):
         s.root = root # root of the structure
         s.defStruct = "%Y/%m/%d" # Default structure
 
     """
-    Save an image into the structure
+    link an image into the structure
     """
-    def save(s, filepath, structure=None):
+    def link(s, filepath, structure=None):
         structure = structure if structure else s.defStruct
         if os.path.isfile(filepath): # Check the requested file exists
-            filename, fileExt = os.path.splitext(os.path.basename(filepath))
+            filename = os.path.basename(filepath)
             with open(filepath, "rb") as f:
-                newfile = fingerprint.fingerprint(f) + fileExt # fingerprinted filename
                 meta = metadata.extract(f)
-            pass
+            date = time.gmtime(os.path.getctime(filepath)) # Date file was created
+            reg = re.compile("datetimeoriginal", re.I)
+            if meta:
+                for m in meta: # Get image metadata if it exists
+                    if reg.search(m):
+                        date = time.strptime(str(meta[m]), "%Y:%m:%d %H:%M:%S")
+            imgpath = os.path.join(s.root, time.strftime(structure, date), filename)
+            if not os.path.isfile(imgpath):
+                os.makedirs(os.path.dirname(imgpath))
+                os.link(filepath, imgpath)
+            return imgpath
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
 
@@ -104,4 +113,4 @@ if __name__ == "__main__":
     path = os.path.realpath(os.path.join(root, args.file))
 
     app = DateStore(root)
-    app.save(path)
+    print app.link(path)
