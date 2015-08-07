@@ -28,7 +28,7 @@ class Store(object):
             return {
                 "path"      : address.abspath,
                 "id"        : address.id + ext
-            } if address else None
+            } if address and not address.is_duplicate else None
 
     """
     Load a file from the storage
