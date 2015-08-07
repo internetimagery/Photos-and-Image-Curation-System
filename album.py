@@ -57,17 +57,45 @@ class Album(object):
         else:
             s.build()
 
+    """
+    Add new image to album
+    """
+    def addFile(s, filepath):
+        if os.path.isfile(filepath):
+            print("ok")
+        else:
+            raise Exception("Provided file does not exist!")
+        pass
+
+    """
+    Remove image
+    """
+    def removeFile(s, fileID):
+        pass
+
+    """
+    Tag image
+    """
+    def tagFile(s, fileID, tag):
+        pass
+
 
 # Command Line functionality
 if __name__ == "__main__":
     import os
     from argparse import ArgumentParser, FileType
     parser = ArgumentParser(description="Create a space to store pictures")
-    parser.add_argument("album", help="The Album to work with", type=str)
-    # parser.add_argument("-s", help="The file you wish to store", type=str)
-    # parser.add_argument("-l", help="The filename/id of file to load", type=str)
+    parser.add_argument("album", help="Path to the Album to work with", type=str)
+    parser.add_argument("-f", help="The file or ID you wish to work with", type=str)
+    parser.add_argument("-i", help="Import file", action="store_true")
+    parser.add_argument("-r", help="Remove file", action="store_true")
+    parser.add_argument("-t", help="Tag file", type=str)
     args = parser.parse_args()
     root = os.getcwd()
     path = os.path.realpath(os.path.join(root, args.album))
+    inp = os.path.realpath(os.path.join(root, args.f)) if args.f else None
 
     app = Album(path)
+    if inp:
+        if args.t:
+            pass

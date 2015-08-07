@@ -28,11 +28,13 @@
 # %Z  Time zone name (no charact
 # %%  A literal ’%’ character.
 
-import os, re
+import os
+import re
 import time
 import fingerprint
 import metadata
 import utility
+# from Vendor.dateutil import parser
 
 class DateStore(object):
     """
@@ -45,23 +47,27 @@ class DateStore(object):
     """
     link an image into the structure
     """
-    def link(s, filepath, structure=None):
+    def store(s, filepath, structure=None):
         structure = structure if structure else s.defStruct
         if os.path.isfile(filepath): # Check the requested file exists
-            filename = os.path.basename(filepath)
+            filename, ext = os.path.splitext(os.path.basename(filepath))
             with open(filepath, "rb") as f:
                 meta = metadata.extract(f)
-            date = time.gmtime(os.path.getctime(filepath)) # Date file was created
-            reg = re.compile("datetimeoriginal", re.I)
-            if meta:
-                for m in meta: # Get image metadata if it exists
-                    if reg.search(m):
-                        date = time.strptime(str(meta[m]), "%Y:%m:%d %H:%M:%S")
-            imgpath = os.path.join(s.root, time.strftime(structure, date))
-            if not os.path.isdir(imgpath):
-                os.makedirs(imgpath)
-            imgpath = os.path.join(imgpath, filename)
-            utility.link(filepath, imgpath)
+                f.seek(0) # Return to start of file
+                fp = fingerprint.fingerprint(f)
+                date = time.gmtime(os.path.getctime(filepath)) # Date file was created
+                if meta:
+                    reg = re.compile("datetime", re.I)
+                    tags = sorted([m for m in meta if reg.search(m)])
+                    if tags:
+                        try:
+                            date = time.strptime(str(meta[tags[0]]), "%Y:%m:%d %H:%M:%S")
+                        except ValueError:
+                            print("Could not parse date:", meta[tags[0]])
+                imgpath = os.path.join(s.root, time.strftime(structure, date))
+                utility.mkdir(imgpath)
+                imgpath = os.path.join(imgpath, fp + ext)
+                utility.link(filepath, imgpath)
             return imgpath
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
@@ -78,4 +84,4 @@ if __name__ == "__main__":
     path = os.path.realpath(os.path.join(root, args.file))
 
     app = DateStore(root)
-    print(app.link(path))
+    print(app.store(path))

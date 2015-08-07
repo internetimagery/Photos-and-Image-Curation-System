@@ -2,7 +2,8 @@
 
 # Pull metadata from a file
 import time
-from Vendor import exifread
+# from Vendor import exifread
+import exifread
 
 def extract(f):
     return exifread.process_file(f, details=False) # Pull out tags from a file
