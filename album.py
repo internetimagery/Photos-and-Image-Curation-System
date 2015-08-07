@@ -8,7 +8,7 @@ import time
 
 class Album(object):
     """
-    Create and manage the albums directory structure
+    Create the albums directory structure
     """
     def __init__(s, root, **overrides):
         s.root = root
@@ -18,7 +18,6 @@ class Album(object):
         else:
             s.build(overrides)
 
-
     """
     Build an Album
     """
@@ -26,16 +25,9 @@ class Album(object):
         print("Creating Album in ", s.root)
         s.settings = { # Default settings
             "last_check"    : time.time(), # last time all files were checked
-            "store_root"    : "Storage", # Image stored via content
-            "trash_root"    : "Trash", # Place deleted photos here
             "image_root"    : "Photos", # Place for images to be saved
             "tag_root"      : "Tags", # Place for tags to be stored
             "datestore_format" : "%Y/%m/%d", # folder structure
-            "store_format"  : {
-                "depth"     : 4,
-                "width"     : 10,
-                "algorithm" : "sha256"
-                }
             }
         s.settings = dict(s.settings, **overrides)
         utility.mkdir(s.root)
@@ -56,29 +48,6 @@ class Album(object):
                 s.settings = json.load(f)
         else:
             s.build()
-
-    """
-    Add new image to album
-    """
-    def addFile(s, filepath):
-        if os.path.isfile(filepath):
-            print("ok")
-        else:
-            raise Exception("Provided file does not exist!")
-        pass
-
-    """
-    Remove image
-    """
-    def removeFile(s, fileID):
-        pass
-
-    """
-    Tag image
-    """
-    def tagFile(s, fileID, tag):
-        pass
-
 
 # Command Line functionality
 if __name__ == "__main__":

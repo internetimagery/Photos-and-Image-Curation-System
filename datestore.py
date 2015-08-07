@@ -40,16 +40,15 @@ class DateStore(object):
     """
     Link files in a folder structure based on date
     """
-    def __init__(s, root, trash="trash"):
+    def __init__(s, root, structure=None trash="trash"):
         s.root = root # root of the structure
         s.trash = os.path.join(root, trash)
-        s.defStruct = "%Y/%m/%d" # Default structure
+        s.struct = structure if structure else "%Y/%m/%d" # Default structure
 
     """
     link an image into the structure
     """
-    def put(s, filepath, structure=None):
-        structure = structure if structure else s.defStruct
+    def put(s, filepath):
         if os.path.isfile(filepath): # Check the requested file exists
             filename, ext = os.path.splitext(os.path.basename(filepath))
             with open(filepath, "rb") as f:
@@ -65,7 +64,7 @@ class DateStore(object):
                             date = time.strptime(str(meta[tags[0]]), "%Y:%m:%d %H:%M:%S")
                         except ValueError:
                             print("Could not parse date:", meta[tags[0]])
-                imgpath = os.path.join(s.root, time.strftime(structure, date))
+                imgpath = os.path.join(s.root, time.strftime(s.struct, date))
                 utility.mkdir(imgpath)
                 imgpath = os.path.join(imgpath, fp + ext)
                 f.seek(0)
