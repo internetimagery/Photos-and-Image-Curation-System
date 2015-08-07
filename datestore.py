@@ -67,40 +67,6 @@ class DateStore(object):
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
 
-
-
-
-
-    # def importFile(s, path):
-    #     if s.data and s.root:
-    #         filename, file_extension = os.path.splitext(path)
-    #         if os.path.isfile(path) and file_extension.lower() in s.allowed:
-    #             filetime = time.gmtime(os.path.getctime(path)) # Date the file was created originally
-    #             with open(path, "rb") as f:
-    #                 tags = exifread.process_file(f)
-    #                 fp = fingerprint.fingerprint(f)
-    #             if tags: # Try for metatags
-    #                 reg = re.compile("datetimeoriginal", re.IGNORECASE)
-    #                 for tag in tags:
-    #                     if reg.search(tag):
-    #                         filetime = time.strptime(str(tags[tag]), "%Y:%m:%d %H:%M:%S")
-    #             imgpath = os.path.join(
-    #                 s.root,
-    #                 s.data["image_root"],
-    #                 time.strftime(s.data["format"], filetime),
-    #                 fp + file_extension)
-    #             if os.path.isfile(imgpath):
-    #                 print "File is a duplicate. Not importing."
-    #             else:
-    #                 os.makedirs(os.path.dirname(imgpath))
-    #                 shutil.copy2(path, imgpath)
-    #         else:
-    #             raise OSError, "Could not import file"
-    #     else:
-    #         raise OSError, "Album not loaded"
-
-
-
 # Command Line functionality
 if __name__ == "__main__":
     import os
