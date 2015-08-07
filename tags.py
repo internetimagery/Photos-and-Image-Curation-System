@@ -2,6 +2,7 @@
 
 # Link a file into a tags directory
 import os
+import utility
 
 class Tags(object):
     """
@@ -21,7 +22,7 @@ class Tags(object):
                 os.makedirs(path)
             path = os.path.join(path, filename)
             if not os.path.isfile(path):
-                os.link(filepath, path)
+                utility.link(filepath, path)
             return path
         return None
 

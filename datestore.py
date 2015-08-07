@@ -32,6 +32,7 @@ import os, re
 import time
 import fingerprint
 import metadata
+import utility
 
 class DateStore(object):
     """
@@ -60,9 +61,7 @@ class DateStore(object):
             if not os.path.isdir(imgpath):
                 os.makedirs(imgpath)
             imgpath = os.path.join(imgpath, filename)
-            if os.path.isdir(imgpath):
-                os.remove(imgpath)
-            os.link(filepath, imgpath)
+            utility.link(filepath, imgpath)
             return imgpath
         else:
             raise Exception("File provided doesn't exist: %s" % filepath)
