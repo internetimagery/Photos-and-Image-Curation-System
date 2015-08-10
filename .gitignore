@@ -1,6 +1,7 @@
 # Created by https://www.gitignore.io
 
 TEMP/*
+tutorial/*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
