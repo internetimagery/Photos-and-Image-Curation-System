@@ -51,7 +51,8 @@ class Main(QtGui.QMainWindow):
             if albDir:
                 s._addAlbum(alb)
                 return
-        s._warn("No album could be found...\nDouble check you're choosing an album?")
+            else:
+                s._warn("No album could be found...\nDouble check you're choosing an album?")
 
     def importCamera(s):
         """
