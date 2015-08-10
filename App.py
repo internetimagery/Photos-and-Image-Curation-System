@@ -86,7 +86,6 @@ class Main(QtGui.QMainWindow):
         s._warn("Congrats, an album has been added. TODO: add functionality")
 
 
-
 if __name__ == "__main__":
     import sys
     app = QtGui.QApplication(sys.argv)
