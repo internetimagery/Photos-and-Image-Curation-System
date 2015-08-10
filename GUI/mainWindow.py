@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Mon Aug 10 17:26:02 2015
+# Created: Tue Aug 11 00:46:59 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -77,3 +77,14 @@ class Ui_MainWindow(object):
         self.actionFolder.setText(QtGui.QApplication.translate("MainWindow", "&Folder", None, QtGui.QApplication.UnicodeUTF8))
         self.actionFolder.setToolTip(QtGui.QApplication.translate("MainWindow", "Import Images from a Folder on your computer", None, QtGui.QApplication.UnicodeUTF8))
         self.actionImages.setText(QtGui.QApplication.translate("MainWindow", "Images", None, QtGui.QApplication.UnicodeUTF8))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    MainWindow = QtGui.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
+

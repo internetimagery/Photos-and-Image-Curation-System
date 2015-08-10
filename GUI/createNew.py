@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'createNew.ui'
 #
-# Created: Mon Aug 10 23:07:50 2015
+# Created: Tue Aug 11 00:46:59 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -78,7 +78,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(QtGui.QApplication.translate("Form", "Form", None, QtGui.QApplication.UnicodeUTF8))
+        Form.setWindowTitle(QtGui.QApplication.translate("Form", "Create a New Album", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("Form", "Create a New Album", None, QtGui.QApplication.UnicodeUTF8))
         self.buttonBrowse.setText(QtGui.QApplication.translate("Form", "Browse", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("Form", "Folder Structure", None, QtGui.QApplication.UnicodeUTF8))
