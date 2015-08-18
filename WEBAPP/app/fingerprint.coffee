@@ -5,7 +5,7 @@ path = require "path"
 
 fingerprint = (file, callback)->
   fd = fs.createReadStream file
-  hash = crypto.createHash "md5"
+  hash = crypto.createHash "SHA256"
   hash.setEncoding "hex"
   fd.on "error", (err)->
     callback err, null

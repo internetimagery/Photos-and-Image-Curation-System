@@ -9,7 +9,7 @@ path = require("path");
 fingerprint = function(file, callback) {
   var fd, hash;
   fd = fs.createReadStream(file);
-  hash = crypto.createHash("md5");
+  hash = crypto.createHash("SHA256");
   hash.setEncoding("hex");
   fd.on("error", function(err) {
     return callback(err, null);
