@@ -20,7 +20,7 @@ fingerprint = function(file, callback) {
       });
       fd.on("end", function() {
         hash.end();
-        return callback(null, hash.read() + size.size);
+        return callback(null, "" + (hash.read()) + "-" + size.size);
       });
       return fd.pipe(hash);
     }

@@ -16,7 +16,7 @@ fingerprint = (file, callback)->
         callback err, null
       fd.on "end", ()->
         hash.end()
-        callback null, hash.read() + size.size
+        callback null, "#{hash.read()}-#{size.size}"
       fd.pipe hash
 
 ArgParse = require "argparse/lib/argparse"

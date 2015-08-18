@@ -14,9 +14,9 @@
     "electron-prebuilt": "^0.30.4"
   },
   "dependencies": {
-    "crypto": "0.0.3",
     "exif": "^0.4.0",
     "moment": "^2.10.6",
+    "tmp": "0.0.27",
     "underscore": "^1.8.3"
   }
 }
