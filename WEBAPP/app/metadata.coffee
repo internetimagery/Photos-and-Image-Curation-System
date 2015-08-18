@@ -1,5 +1,4 @@
 # Parse date into a file format and grab exit metadata
-moment = require "moment"
 ExifImage = require "exif"
 .ExifImage
 path = require "path"
@@ -30,17 +29,23 @@ getCreationDate = (file, callback)->
       creation = stats.birthtime
       getMetadata file, (err, exif)->
         if err
-          # Couldn't gather EXIF data. Return creation date
+          # Likely not an image. Return file creation date
           console.log err.message
           callback null, creation
         else
+          # We have an image. Check for data
+          reg = /^(\d+):(\d+):(\d+)(.+)/
           if exif and not _.isEmpty exif.exif
-            print "EMPTY"
+            if _.isString exif.exif.DateTimeOriginal
+              creation = exif.exif.DateTimeOriginal
+              callback null, new Date creation.replace reg, "$1/$2/$3 $4"
+            else if _.isString exif.exif.CreateDate
+              creation = exif.exif.CreateDate
+              callback null, new Date creation.replace reg, "$1/$2/$3 $4"
           else if exif and not _.isEmpty exif.image
-            print exif.image
+            print "We have  image data"
           else
-            print type creation
-            # callback null, creation
+            callback null, creation
 
   # getMetadata file, (err, data)->
   #   print data

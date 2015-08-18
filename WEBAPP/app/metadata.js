@@ -1,6 +1,4 @@
-var ArgParse, ExifImage, args, fs, getCreationDate, getMetadata, moment, parser, path, print, src, _;
-
-moment = require("moment");
+var ArgParse, ExifImage, args, fs, getCreationDate, getMetadata, parser, path, print, src, _;
 
 ExifImage = require("exif").ExifImage;
 
@@ -40,16 +38,24 @@ getCreationDate = function(file, callback) {
     } else {
       creation = stats.birthtime;
       return getMetadata(file, function(err, exif) {
+        var reg;
         if (err) {
           console.log(err.message);
           return callback(null, creation);
         } else {
+          reg = /^(\d+):(\d+):(\d+)(.+)/;
           if (exif && !_.isEmpty(exif.exif)) {
-            return print("EMPTY");
+            if (_.isString(exif.exif.DateTimeOriginal)) {
+              creation = exif.exif.DateTimeOriginal;
+              return callback(null, new Date(creation.replace(reg, "$1/$2/$3 $4")));
+            } else if (_.isString(exif.exif.CreateDate)) {
+              creation = exif.exif.CreateDate;
+              return callback(null, new Date(creation.replace(reg, "$1/$2/$3 $4")));
+            }
           } else if (exif && !_.isEmpty(exif.image)) {
-            return print(exif.image);
+            return print("We have  image data");
           } else {
-            return print(type(creation));
+            return callback(null, creation);
           }
         }
       });

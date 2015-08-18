@@ -12,7 +12,7 @@ saveToPath = function(source, dest, callback) {
   return fs.open(source, "r", function(err, fd) {
     var destSplit, dirs, recurse;
     if (err) {
-      throw "File could not be opened. Does it exist? " + source;
+      throw err;
     } else {
       destSplit = path.parse(dest);
       dirs = destSplit.dir.split(path.sep);
@@ -32,7 +32,11 @@ saveToPath = function(source, dest, callback) {
       };
       if (dirs.length) {
         return recurse(1, dirs, function() {
-          return print("done");
+          var dstStream, srcStream;
+          srcStream = fs.createReadStream(source);
+          dstStream = fs.createWriteStream(dest);
+          srcStream.pipe(dstStream);
+          return callback(dest);
         });
       }
     }
@@ -59,9 +63,9 @@ args = parser.parseArgs();
 
 root = process.cwd();
 
-src = path.join(root, args.source);
+src = path.resolve(args.source);
 
-dst = path.join(root, args.destination);
+dst = path.resolve(args.destination);
 
 saveToPath(src, dst, function(path) {
   return console.dir("Returned path: " + path);
