@@ -4,15 +4,16 @@ moment = require "moment"
 print = (m)->
   console.dir m
 
-# year
-# month
-# monthname
-# day
-# dayname
-# hour
-# minute
-# second
-# millisecond
+# Possible tokens
+# <year>
+# <month>
+# <monthname>
+# <day>
+# <dayname>
+# <hour>
+# <minute>
+# <second>
+# <millisecond>
 
 parseToken = (token, date)->
   dateTime = moment date
@@ -22,10 +23,10 @@ parseToken = (token, date)->
     when "monthname" then dateTime.format("MMMM")
     when "day" then dateTime.format("DD")
     when "dayname" then dateTime.format("dddd")
-    when "hours" then dateTime.format("HH")
+    when "hour" then dateTime.format("HH")
     when "minute" then dateTime.format("mm")
     when "second" then dateTime.format("ss")
-    when "milliseconds" then dateTime.format("SSS")
+    when "millisecond" then dateTime.format("SSS")
 
 parseString = (string, date)->
   reg = /<(\w+)>/g
@@ -37,7 +38,6 @@ parseString = (string, date)->
     pointer = match.index + match[0].length
     tokened += parseToken match[1], date
   tokened += string.substr pointer, string.length - pointer
-  print tokened
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
@@ -51,4 +51,4 @@ parser.addArgument ["tokens"],
   help : "The string to parse"
 
 args = parser.parseArgs()
-parseString args.tokens, new Date()
+print parseString args.tokens, new Date()

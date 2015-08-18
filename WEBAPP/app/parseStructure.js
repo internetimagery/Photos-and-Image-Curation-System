@@ -21,13 +21,13 @@ parseToken = function(token, date) {
         return dateTime.format("DD");
       case "dayname":
         return dateTime.format("dddd");
-      case "hours":
+      case "hour":
         return dateTime.format("HH");
       case "minute":
         return dateTime.format("mm");
       case "second":
         return dateTime.format("ss");
-      case "milliseconds":
+      case "millisecond":
         return dateTime.format("SSS");
     }
   })();
@@ -43,8 +43,7 @@ parseString = function(string, date) {
     pointer = match.index + match[0].length;
     tokened += parseToken(match[1], date);
   }
-  tokened += string.substr(pointer, string.length - pointer);
-  return print(tokened);
+  return tokened += string.substr(pointer, string.length - pointer);
 };
 
 ArgParse = require("argparse/lib/argparse").ArgumentParser;
@@ -61,4 +60,4 @@ parser.addArgument(["tokens"], {
 
 args = parser.parseArgs();
 
-parseString(args.tokens, new Date());
+print(parseString(args.tokens, new Date()));
