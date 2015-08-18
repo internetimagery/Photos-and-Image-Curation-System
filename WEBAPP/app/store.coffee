@@ -121,7 +121,9 @@ storeDir = (filePath, structure, callback)->
                 dest.end()
                 print fileDir
                 filename = "#{hash.read()}-#{srcStats.size}#{srcParts.ext}"
-                callback null, path.join fileDir, filename
+                callback null,
+                  temp : tmpPath,
+                  dest : path.join fileDir, filename
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

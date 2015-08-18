@@ -143,7 +143,10 @@ storeDir = function(filePath, structure, callback) {
                 dest.end();
                 print(fileDir);
                 filename = "" + (hash.read()) + "-" + srcStats.size + srcParts.ext;
-                return callback(null, path.join(fileDir, filename));
+                return callback(null, {
+                  temp: tmpPath,
+                  dest: path.join(fileDir, filename)
+                });
               });
             }
           });
