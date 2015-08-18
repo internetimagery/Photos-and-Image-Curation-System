@@ -9,7 +9,7 @@ print = (m)->
 saveToPath = (source, dest, callback)->
   fs.open source, "r", (err, fd)->
     if err
-      throw "File could not be opened. Does it exist? #{source}"
+      throw err
     else
       destSplit = path.parse(dest)
       dirs = destSplit.dir.split path.sep
@@ -30,7 +30,6 @@ saveToPath = (source, dest, callback)->
           srcStream.pipe dstStream
           callback dest
 
-
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -49,7 +48,7 @@ args = parser.parseArgs()
 
 
 root = process.cwd()
-src = path.join root, args.source
-dst = path.join root, args.destination
+src = path.resolve args.source
+dst = path.resolve args.destination
 saveToPath src, dst, (path)->
   console.dir "Returned path: #{path}"
