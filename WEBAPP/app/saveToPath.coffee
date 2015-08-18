@@ -25,15 +25,10 @@ saveToPath = (source, dest, callback)->
           callback()
       if dirs.length
         recurse 1, dirs, ()->
-          print "done"
-
-
-      # fs.mkdir destSplit.dir, (err)->
-        # if err
-        #   throw err
-
-      # print pathPieces[1..]
-      # print pathPieces
+          srcStream = fs.createReadStream source
+          dstStream = fs.createWriteStream dest
+          srcStream.pipe dstStream
+          callback dest
 
 
 ArgParse = require "argparse/lib/argparse"
