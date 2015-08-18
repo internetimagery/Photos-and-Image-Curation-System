@@ -7,18 +7,24 @@ fs = require("fs");
 path = require("path");
 
 fingerprint = function(file, callback) {
-  var fd, hash;
-  fd = fs.createReadStream(file);
-  hash = crypto.createHash("SHA256");
-  hash.setEncoding("hex");
-  fd.on("error", function(err) {
-    return callback(err, null);
+  return fs.stat(file, function(err, size) {
+    var fd, hash;
+    if (err) {
+      return callback(err, null);
+    } else {
+      fd = fs.createReadStream(file);
+      hash = crypto.createHash("SHA256");
+      hash.setEncoding("hex");
+      fd.on("error", function(err) {
+        return callback(err, null);
+      });
+      fd.on("end", function() {
+        hash.end();
+        return callback(null, hash.read() + size.size);
+      });
+      return fd.pipe(hash);
+    }
   });
-  fd.on("end", function() {
-    hash.end();
-    return callback(null, hash.read());
-  });
-  return fd.pipe(hash);
 };
 
 ArgParse = require("argparse/lib/argparse").ArgumentParser;

@@ -3,16 +3,21 @@ crypto = require "crypto"
 fs = require "fs"
 path = require "path"
 
+# Hash file and append size to keep name unique
 fingerprint = (file, callback)->
-  fd = fs.createReadStream file
-  hash = crypto.createHash "SHA256"
-  hash.setEncoding "hex"
-  fd.on "error", (err)->
-    callback err, null
-  fd.on "end", ()->
-    hash.end()
-    callback null, hash.read()
-  fd.pipe hash
+  fs.stat file, (err, size)->
+    if err
+      callback err, null
+    else
+      fd = fs.createReadStream file
+      hash = crypto.createHash "SHA256"
+      hash.setEncoding "hex"
+      fd.on "error", (err)->
+        callback err, null
+      fd.on "end", ()->
+        hash.end()
+        callback null, hash.read() + size.size
+      fd.pipe hash
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
