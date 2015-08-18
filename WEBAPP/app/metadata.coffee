@@ -42,8 +42,6 @@ getCreationDate = (file, callback)->
             else if _.isString exif.exif.CreateDate
               creation = exif.exif.CreateDate
               callback null, new Date creation.replace reg, "$1/$2/$3 $4"
-          else if exif and not _.isEmpty exif.image
-            print "We have  image data"
           else
             callback null, creation
 

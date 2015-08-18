@@ -52,8 +52,6 @@ getCreationDate = function(file, callback) {
               creation = exif.exif.CreateDate;
               return callback(null, new Date(creation.replace(reg, "$1/$2/$3 $4")));
             }
-          } else if (exif && !_.isEmpty(exif.image)) {
-            return print("We have  image data");
           } else {
             return callback(null, creation);
           }
