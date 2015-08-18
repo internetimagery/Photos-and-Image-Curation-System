@@ -49,9 +49,9 @@ parseDir = function(filePath, structure, callback) {
         creation = stats.birthtime;
         reg = /^(\d+):(\d+):(\d+)(.+)/;
         if (exif && exif.exif.DateTimeOriginal) {
-          creation = new Date(exif.exif.DateTimeOriginal).replace(reg, "$1/$2/$3 $4");
+          creation = new Date(exif.exif.DateTimeOriginal.replace(reg, "$1/$2/$3 $4"));
         } else if (exif && exif.exif.CreateDate) {
-          creation = new Date(exif.exif.CreateDate).replace(reg, "$1/$2/$3 $4");
+          creation = new Date(exif.exif.CreateDate.replace(reg, "$1/$2/$3 $4"));
         }
         dateTime = moment(creation);
         parseToken = function(token) {
@@ -76,6 +76,15 @@ parseDir = function(filePath, structure, callback) {
                 return dateTime.format("ss");
               case "millisecond":
                 return dateTime.format("SSS");
+              case "size":
+                return stats.size;
+              case "model":
+                if (exif && exif.image.Model) {
+                  return exif.image.Model;
+                }
+                break;
+              default:
+                return "unknown";
             }
           })();
         };
@@ -88,7 +97,7 @@ parseDir = function(filePath, structure, callback) {
           tokenPath += parseToken(match[1]);
         }
         tokenPath += structure.substr(pointer, structure.length - pointer);
-        return print(tokenPath);
+        return callback(null, tokenPath.replace(/[\<\>\:\"\'\|]/, ""));
       }
     });
   });
@@ -132,8 +141,9 @@ storeDir = function(filePath, structure, callback) {
                 var filename;
                 hash.end();
                 dest.end();
+                print(fileDir);
                 filename = "" + (hash.read()) + "-" + srcStats.size + srcParts.ext;
-                return print("done");
+                return callback(null, path.join(fileDir, filename));
               });
             }
           });

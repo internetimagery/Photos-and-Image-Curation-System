@@ -24,6 +24,8 @@ tmp.setGracefulCleanup()
 # <minute>
 # <second>
 # <millisecond>
+# <size>
+# <model>
 
 print = (m)->
   console.dir m
@@ -53,12 +55,13 @@ parseDir = (filePath, structure, callback)->
         reg = /^(\d+):(\d+):(\d+)(.+)/
         # Replace dividers with something that can be parsed
         if exif and exif.exif.DateTimeOriginal
-          creation = new Date exif.exif.DateTimeOriginal
-                      .replace reg, "$1/$2/$3 $4"
+          creation = new Date exif.exif.DateTimeOriginal.replace reg,
+                    "$1/$2/$3 $4"
         else if exif and exif.exif.CreateDate
-          creation = new Date exif.exif.CreateDate
-                      .replace reg, "$1/$2/$3 $4"
+          creation = new Date exif.exif.CreateDate.replace reg,
+                    "$1/$2/$3 $4"
         dateTime = moment creation
+
 
         parseToken = (token)->
           replaced = switch token
@@ -71,17 +74,19 @@ parseDir = (filePath, structure, callback)->
             when "minute" then dateTime.format("mm")
             when "second" then dateTime.format("ss")
             when "millisecond" then dateTime.format("SSS")
+            when "size" then stats.size
+            when "model" then exif.image.Model if exif and exif.image.Model else "unknown"
 
         reg = /<(\w+)>/g
         tokenPath = ""
         pointer = 0
-        # datetime = moment date
         while match = reg.exec structure
           tokenPath += structure.substr pointer, match.index - pointer
           pointer = match.index + match[0].length
           tokenPath += parseToken match[1]
         tokenPath += structure.substr pointer, structure.length - pointer
-        print tokenPath
+        callback null, tokenPath.replace /[\<\>\:\"\'\|]/, ""
+        # Sanitize file dir
 
 # Generate a file path to store the file,
 # and a staging area path that holds a copy of the file
@@ -114,8 +119,9 @@ storeDir = (filePath, structure, callback)->
               src.on "end", ()->
                 hash.end()
                 dest.end()
+                print fileDir
                 filename = "#{hash.read()}-#{srcStats.size}#{srcParts.ext}"
-                print "done"
+                callback null, path.join fileDir, filename
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
