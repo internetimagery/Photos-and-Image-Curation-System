@@ -1,0 +1,16 @@
+{
+  "name": "photo_and_image_curation_system",
+  "version": "1.0.0",
+  "description": "Sort through photos in a simple way, maintaining a folder structure suitable for humans.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "Jason",
+  "license": "ISC",
+  "devDependencies": {
+    "argparse": "^1.0.2",
+    "electron-prebuilt": "^0.30.4"
+  }
+}

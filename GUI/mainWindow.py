@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Tue Aug 11 00:46:59 2015
+# Created: Tue Aug 11 14:22:58 2015
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,19 +20,19 @@ class Ui_MainWindow(object):
         self.splitter = QtGui.QSplitter(self.centralwidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
-        self.listWidget = QtGui.QListWidget(self.splitter)
-        self.listWidget.setObjectName("listWidget")
-        self.treeWidget = QtGui.QTreeWidget(self.splitter)
-        self.treeWidget.setObjectName("treeWidget")
-        self.treeWidget.headerItem().setText(0, "1")
+        self.treeView = QtGui.QTreeView(self.splitter)
+        self.treeView.setObjectName("treeView")
+        self.scrollArea = QtGui.QScrollArea(self.splitter)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents_2 = QtGui.QWidget()
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 244, 525))
+        self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents_2)
         self.verticalLayout.addWidget(self.splitter)
-        self.progressBar = QtGui.QProgressBar(self.centralwidget)
-        self.progressBar.setProperty("value", 24)
-        self.progressBar.setObjectName("progressBar")
-        self.verticalLayout.addWidget(self.progressBar)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 27))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 26))
         self.menubar.setObjectName("menubar")
         self.menuAlbum = QtGui.QMenu(self.menubar)
         self.menuAlbum.setObjectName("menuAlbum")
