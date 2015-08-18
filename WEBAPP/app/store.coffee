@@ -13,7 +13,7 @@ print = (m)->
 
 # Generate a file path to store the file,
 # and a staging area path that holds a copy of the file
-storeDir = (filePath, callback)->
+storeDir = (filePath, structure, callback)->
   tmp.file prefix: "photo-", _tempFileCreated = (err, tmpPath, fd, cleanTmp)->
     if err
       callback err, null
@@ -24,14 +24,20 @@ storeDir = (filePath, callback)->
         else
           srcParts = path.parse filePath # The pieces of the filename
           src = fs.createReadStream filePath # Stream the files data
+          dest = fs.createWriteStream tmpPath, fd : fd
           hash = crypto.createHash "SHA256"
           hash.setEncoding "hex"
           src.on "error", (err)->
             callback err, null
+          dest.on "error", (err)->
+            callback err, null
+            # Might callback twice, but it's with an error so who cares
           src.on "data", (buffer)->
             hash.update buffer
+            dest.write buffer
           src.on "end", ()->
             hash.end()
+            dest.end()
             filename = "#{hash.read()}-#{srcStats.size}#{srcParts.ext}"
             print filename
             print "done"
@@ -46,10 +52,12 @@ parser = new ArgParse
 
 parser.addArgument ["source"],
   help : "The file to be stored."
+parser.addArgument ["structure"],
+  help : "String to be converted into file structure."
 
 args = parser.parseArgs()
 
 src = path.resolve args.source
-storeDir src, (err, dir)->
+storeDir src, args.structure, (err, dir)->
   print err
   print dir

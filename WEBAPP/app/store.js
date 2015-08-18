@@ -14,7 +14,7 @@ print = function(m) {
   return console.dir(m);
 };
 
-storeDir = function(filePath, callback) {
+storeDir = function(filePath, structure, callback) {
   var _tempFileCreated;
   return tmp.file({
     prefix: "photo-"
@@ -23,23 +23,31 @@ storeDir = function(filePath, callback) {
       return callback(err, null);
     } else {
       return fs.stat(filePath, function(err, srcStats) {
-        var hash, src, srcParts;
+        var dest, hash, src, srcParts;
         if (err) {
           return callback(err, null);
         } else {
           srcParts = path.parse(filePath);
           src = fs.createReadStream(filePath);
+          dest = fs.createWriteStream(tmpPath, {
+            fd: fd
+          });
           hash = crypto.createHash("SHA256");
           hash.setEncoding("hex");
           src.on("error", function(err) {
             return callback(err, null);
           });
+          dest.on("error", function(err) {
+            return callback(err, null);
+          });
           src.on("data", function(buffer) {
-            return hash.update(buffer);
+            hash.update(buffer);
+            return dest.write(buffer);
           });
           return src.on("end", function() {
             var filename;
             hash.end();
+            dest.end();
             filename = "" + (hash.read()) + "-" + srcStats.size + srcParts.ext;
             print(filename);
             return print("done");
@@ -62,11 +70,15 @@ parser.addArgument(["source"], {
   help: "The file to be stored."
 });
 
+parser.addArgument(["structure"], {
+  help: "String to be converted into file structure."
+});
+
 args = parser.parseArgs();
 
 src = path.resolve(args.source);
 
-storeDir(src, function(err, dir) {
+storeDir(src, args.structure, function(err, dir) {
   print(err);
   return print(dir);
 });
