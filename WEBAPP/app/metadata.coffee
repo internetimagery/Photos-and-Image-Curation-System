@@ -45,23 +45,6 @@ getCreationDate = (file, callback)->
           else
             callback null, creation
 
-  # getMetadata file, (err, data)->
-  #   print data
-  #   if err
-  #     print err
-  #   if data and data.exif
-  #     print data.exif
-  #   else if data and data.image
-  #     print data.image
-  #   else
-  #     fs.stat file, (err, stats)->
-  #       if err
-  #         print err.message
-  #       print stats
-# print moment().format()
-
-
-
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -74,7 +57,6 @@ parser.addArgument ["source"],
   help : "The file to grab data from"
 
 args = parser.parseArgs()
-
 
 src = path.resolve args.source
 getCreationDate src, (err, data)->
