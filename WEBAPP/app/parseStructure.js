@@ -1,7 +1,36 @@
-var ArgParse, args, parseString, parser, print;
+var ArgParse, args, moment, parseString, parseToken, parser, print;
+
+moment = require("moment");
 
 print = function(m) {
   return console.dir(m);
+};
+
+parseToken = function(token, date) {
+  var dateTime, replaced;
+  dateTime = moment(date);
+  return replaced = (function() {
+    switch (token) {
+      case "year":
+        return dateTime.format("YYYY");
+      case "month":
+        return dateTime.format("MM");
+      case "monthname":
+        return dateTime.format("MMMM");
+      case "day":
+        return dateTime.format("DD");
+      case "dayname":
+        return dateTime.format("dddd");
+      case "hours":
+        return dateTime.format("HH");
+      case "minute":
+        return dateTime.format("mm");
+      case "second":
+        return dateTime.format("ss");
+      case "milliseconds":
+        return dateTime.format("SSS");
+    }
+  })();
 };
 
 parseString = function(string, date) {
@@ -12,6 +41,7 @@ parseString = function(string, date) {
   while (match = reg.exec(string)) {
     tokened += string.substr(pointer, match.index - pointer);
     pointer = match.index + match[0].length;
+    tokened += parseToken(match[1], date);
   }
   tokened += string.substr(pointer, string.length - pointer);
   return print(tokened);
