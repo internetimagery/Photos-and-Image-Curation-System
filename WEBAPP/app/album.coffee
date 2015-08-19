@@ -61,6 +61,11 @@ class Album
       else
         callback null, null
 
+   insert : (imagePath, callback)->
+     if @root
+       imgRoot = path.join @root, @structSettings.image_root
+       print imgRoot
+
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -75,14 +80,25 @@ parser.addArgument ["-n"],
 parser.addArgument ["-o"],
   help : "Open existing album?",
   action : "storeTrue"
+parser.addArgument ["-i"],
+  help : "Insert a photo / image",
 
 args = parser.parseArgs()
 
 # src = path.resolve args.folder
 alb = new Album()
 if args.n
-  alb.new process.cwd(), image_root: "two", (err, albDir)->
-    if err then print err else print albDir
+  alb.new process.cwd(), (err, albumPath)->
+    if err then print err else print albumPath
 else if args.o
-  alb.open process.cwd(), (err, albDir)->
-    if err then print err else print albDir
+  alb.open process.cwd(), (err, albumPath)->
+    if err then print err else print albumPath
+else if args.i
+  src = path.resolve args.i
+  alb.open process.cwd(), (err, albumPath)->
+    if err
+      print err
+    else if albumPath
+      alb.insert src, (err, imgPath)->
+        print err
+        print imgPath

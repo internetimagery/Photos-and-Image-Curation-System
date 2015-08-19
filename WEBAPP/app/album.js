@@ -1,4 +1,4 @@
-var Album, ArgParse, alb, args, fs, parser, path, print, utility;
+var Album, ArgParse, alb, args, fs, parser, path, print, src, utility;
 
 fs = require("fs");
 
@@ -96,6 +96,14 @@ Album = (function() {
     })(this));
   };
 
+  Album.prototype.insert = function(imagePath, callback) {
+    var imgRoot;
+    if (this.root) {
+      imgRoot = path.join(this.root, this.structSettings.image_root);
+      return print(imgRoot);
+    }
+  };
+
   return Album;
 
 })();
@@ -118,26 +126,40 @@ parser.addArgument(["-o"], {
   action: "storeTrue"
 });
 
+parser.addArgument(["-i"], {
+  help: "Insert a photo / image"
+});
+
 args = parser.parseArgs();
 
 alb = new Album();
 
 if (args.n) {
-  alb["new"](process.cwd(), {
-    image_root: "two"
-  }, function(err, albDir) {
+  alb["new"](process.cwd(), function(err, albumPath) {
     if (err) {
       return print(err);
     } else {
-      return print(albDir);
+      return print(albumPath);
     }
   });
 } else if (args.o) {
-  alb.open(process.cwd(), function(err, albDir) {
+  alb.open(process.cwd(), function(err, albumPath) {
     if (err) {
       return print(err);
     } else {
-      return print(albDir);
+      return print(albumPath);
+    }
+  });
+} else if (args.i) {
+  src = path.resolve(args.i);
+  alb.open(process.cwd(), function(err, albumPath) {
+    if (err) {
+      return print(err);
+    } else if (albumPath) {
+      return alb.insert(src, function(err, imgPath) {
+        print(err);
+        return print(imgPath);
+      });
     }
   });
 }
