@@ -20,7 +20,8 @@ searchUp = (searchName, searchDir, callback)->
   paths = pathSplit searchDir
   moveUp = (index)->
     if index is paths.length
-      callback name: "Error", message: "File not found.", null
+      # File not found
+      callback null, null
     else # Nothing found
       checkFile = path.join paths[index], searchName
       fs.access checkFile, (err)->

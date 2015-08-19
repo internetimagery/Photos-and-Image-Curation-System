@@ -28,9 +28,10 @@ class Album
         @structSettings[k] = v
     # First check we aren't already in an album
     utility.searchUp @structName, rootDir, (err, filePath)=>
-      if err then callback err else
-      if filePath? # Cannot create album inside another album
-        callback null
+      if err
+        callback err, null
+      else if filePath? # Cannot create album inside another album
+        callback name: "Error", message: "Cannot create Album inside another", null
       else
         # Create our files!
         utility.mkdirs rootDir, (err)=>
@@ -97,7 +98,7 @@ args = parser.parseArgs()
 # src = path.resolve args.folder
 alb = new Album()
 if args.n
-  alb.new process.cwd(), (err, albumPath)->
+  alb.new process.cwd(), {}, (err, albumPath)->
     if err then print err else print albumPath
 else if args.o
   alb.open process.cwd(), (err, albumPath)->

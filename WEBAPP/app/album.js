@@ -35,12 +35,12 @@ Album = (function() {
     return utility.searchUp(this.structName, rootDir, (function(_this) {
       return function(err, filePath) {
         if (err) {
-          callback(err);
-        } else {
-
-        }
-        if (filePath != null) {
-          return callback(null);
+          return callback(err, null);
+        } else if (filePath != null) {
+          return callback({
+            name: "Error",
+            message: "Cannot create Album inside another"
+          }, null);
         } else {
           return utility.mkdirs(rootDir, function(err) {
             var structData, structFile;
@@ -151,7 +151,7 @@ args = parser.parseArgs();
 alb = new Album();
 
 if (args.n) {
-  alb["new"](process.cwd(), function(err, albumPath) {
+  alb["new"](process.cwd(), {}, function(err, albumPath) {
     if (err) {
       return print(err);
     } else {

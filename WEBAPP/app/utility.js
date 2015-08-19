@@ -25,10 +25,7 @@ searchUp = function(searchName, searchDir, callback) {
   moveUp = function(index) {
     var checkFile;
     if (index === paths.length) {
-      return callback({
-        name: "Error",
-        message: "File not found."
-      }, null);
+      return callback(null, null);
     } else {
       checkFile = path.join(paths[index], searchName);
       return fs.access(checkFile, function(err) {
