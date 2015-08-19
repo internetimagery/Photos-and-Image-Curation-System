@@ -141,7 +141,6 @@ storeDir = function(filePath, structure, callback) {
                 var filename;
                 hash.end();
                 dest.end();
-                print(fileDir);
                 filename = "" + (hash.read()) + "-" + srcStats.size + srcParts.ext;
                 return callback(null, {
                   temp: tmpPath,

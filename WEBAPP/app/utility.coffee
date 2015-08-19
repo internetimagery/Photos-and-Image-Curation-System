@@ -8,7 +8,9 @@ searchUp = (searchName, searchDir, callback)->
   # Ascend directories looking for file
   moveUp = (location)->
     nextLoc = path.dirname location
-    if location is nextLoc then callback null, null else # Nothing found
+    if location is nextLoc
+      callback name: "Error", message: "File not found.", null
+    else # Nothing found
       checkFile = path.join location, searchName
       fs.access checkFile, (err)->
         if err and err.code isnt "ENOENT" then callback err, null

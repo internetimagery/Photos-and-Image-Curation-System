@@ -6,6 +6,8 @@ path = require "path"
 print = (m)->
   console.dir m
 
+# Link a file into a tag folder
+# Callback (error, filePath)
 tag = (root, file, tag, callback)->
   tagDir = path.join root, tag
   fs.mkdir tagDir, (err)->

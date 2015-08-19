@@ -92,7 +92,10 @@ Album = (function() {
             }
           });
         } else {
-          return callback(null, null);
+          return callback({
+            name: "Error",
+            message: "Could not find Album"
+          }, null);
         }
       };
     })(this));
@@ -108,12 +111,25 @@ Album = (function() {
             return callback(err, null);
           } else {
             return store.storeDir(imagePath, _this.structSettings.format, function(err, dirs) {
+              var imgPath;
               if (err) {
                 return callback(err, null);
               } else if (dirs) {
-                return print(dirs);
+                imgPath = path.join(imgRoot, dirs.dest);
+                return fs.access(imgPath, function(err) {
+                  if (err && err.code !== "ENOENT") {
+                    return callback(err, null);
+                  } else if (err) {
+                    return print("ok");
+                  } else {
+                    return callback(null, imgPath);
+                  }
+                });
               } else {
-                return callback(null, null);
+                return callback({
+                  name: "Error",
+                  message: "Not a valid path."
+                }, null);
               }
             });
           }

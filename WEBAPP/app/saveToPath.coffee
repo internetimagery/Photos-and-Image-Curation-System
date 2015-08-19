@@ -5,7 +5,8 @@ path = require "path"
 print = (m)->
   console.dir m
 
-# Copy one file to another location unless file already exists
+# Copy one file to another location even if does't exist
+# Callback (error, filePath)
 saveToPath = (source, dest, callback)->
   fs.open source, "r", (err, fd)->
     if err
@@ -50,5 +51,5 @@ args = parser.parseArgs()
 root = process.cwd()
 src = path.resolve args.source
 dst = path.resolve args.destination
-saveToPath src, dst, (path)->
+saveToPath src, dst, (err, path)->
   console.dir "Returned path: #{path}"

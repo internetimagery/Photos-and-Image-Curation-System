@@ -59,7 +59,6 @@ parseDir = (filePath, structure, callback)->
                     "$1/$2/$3 $4"
         dateTime = moment creation
 
-
         parseToken = (token)->
           replaced = switch token
             when "year" then dateTime.format("YYYY")
@@ -113,7 +112,6 @@ storeDir = (filePath, structure, callback)->
               src.on "end", ()->
                 hash.end()
                 dest.end()
-                print fileDir
                 filename = "#{hash.read()}-#{srcStats.size}#{srcParts.ext}"
                 callback null,
                   temp : tmpPath,

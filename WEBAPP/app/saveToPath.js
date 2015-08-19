@@ -67,6 +67,6 @@ src = path.resolve(args.source);
 
 dst = path.resolve(args.destination);
 
-saveToPath(src, dst, function(path) {
+saveToPath(src, dst, function(err, path) {
   return console.dir("Returned path: " + path);
 });

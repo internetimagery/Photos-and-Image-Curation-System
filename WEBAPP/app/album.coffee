@@ -60,7 +60,7 @@ class Album
             catch err
               callback err, null
       else
-        callback null, null
+        callback name: "Error", message: "Could not find Album", null
 
   # Insert image into album
   # Callback (error, imagePath)
@@ -72,8 +72,16 @@ class Album
         if err and err.code isnt "EEXIST" then callback err, null else
           store.storeDir imagePath, @structSettings.format, (err, dirs)->
             if err then callback err, null else if dirs
-              print dirs
-            else callback null, null
+              imgPath = path.join imgRoot, dirs.dest
+              fs.access imgPath, (err)->
+                if err and err.code isnt "ENOENT" then callback err, null
+                else if err
+                  # File doesn't exist. Move it across
+                  print "ok"
+                else
+                  # File exists. Return existing file path without doing more
+                  callback null, imgPath
+            else callback name: "Error", message: "Not a valid path.", null
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

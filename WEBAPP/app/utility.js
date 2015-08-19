@@ -10,7 +10,10 @@ searchUp = function(searchName, searchDir, callback) {
     var checkFile, nextLoc;
     nextLoc = path.dirname(location);
     if (location === nextLoc) {
-      return callback(null, null);
+      return callback({
+        name: "Error",
+        message: "File not found."
+      }, null);
     } else {
       checkFile = path.join(location, searchName);
       return fs.access(checkFile, function(err) {
