@@ -1,4 +1,4 @@
-var fs, path, pathSplit, searchUp;
+var fs, mkdirs, path, pathSplit, searchUp;
 
 fs = require("fs");
 
@@ -45,4 +45,27 @@ searchUp = function(searchName, searchDir, callback) {
   return moveUp(0);
 };
 
+mkdirs = function(dirPath, callback) {
+  var move, paths;
+  paths = pathSplit(dirPath);
+  move = function(index) {
+    var currDir;
+    currDir = paths[index];
+    return fs.mkdir(currDir, function(err) {
+      if (err && err.code !== "EEXIST") {
+        callback(err);
+      }
+      console.log(currDir);
+      if (index) {
+        return move(index - 1);
+      } else {
+        return callback();
+      }
+    });
+  };
+  return move(paths.length - 1);
+};
+
 exports.searchUp = searchUp;
+
+exports.mkdirs = mkdirs;
