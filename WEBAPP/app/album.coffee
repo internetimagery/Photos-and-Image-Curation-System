@@ -2,6 +2,7 @@
 fs = require "fs"
 path = require "path"
 utility = require "./utility"
+store = require "./store"
 
 print = (m)->
   console.dir m
@@ -61,10 +62,17 @@ class Album
       else
         callback null, null
 
-   insert : (imagePath, callback)->
-     if @root
-       imgRoot = path.join @root, @structSettings.image_root
-       print imgRoot
+  # Insert image into album
+  # Callback (error, imagePath)
+  insert : (imagePath, callback)->
+    if @root
+      imgRoot = path.join @root, @structSettings.image_root
+      # Make the image file if it doesn't already exist
+      fs.mkdir imgRoot, (err)=>
+        if err and err.code isnt "EEXIST" then callback err, null else
+          store.storeDir imagePath, @structSettings.format, (err, dirs)->
+            if err then callback err, null else
+              print dirs
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

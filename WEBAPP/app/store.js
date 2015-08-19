@@ -1,4 +1,4 @@
-var ArgParse, ExifImage, args, crypto, fs, getEXIFData, moment, parseDir, parser, path, print, src, storeDir, tmp;
+var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, print, storeDir, tmp;
 
 fs = require("fs");
 
@@ -156,27 +156,4 @@ storeDir = function(filePath, structure, callback) {
   });
 };
 
-ArgParse = require("argparse/lib/argparse").ArgumentParser;
-
-parser = new ArgParse({
-  version: "0.0.1",
-  addHelp: true,
-  description: "Generate a path to store or locate the file."
-});
-
-parser.addArgument(["source"], {
-  help: "The file to be stored."
-});
-
-parser.addArgument(["structure"], {
-  help: "String to be converted into file structure."
-});
-
-args = parser.parseArgs();
-
-src = path.resolve(args.source);
-
-storeDir(src, args.structure, function(err, dir) {
-  print(err);
-  return print(dir);
-});
+exports.storeDir = storeDir;

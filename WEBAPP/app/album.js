@@ -1,10 +1,12 @@
-var Album, ArgParse, alb, args, fs, parser, path, print, src, utility;
+var Album, ArgParse, alb, args, fs, parser, path, print, src, store, utility;
 
 fs = require("fs");
 
 path = require("path");
 
 utility = require("./utility");
+
+store = require("./store");
 
 print = function(m) {
   return console.dir(m);
@@ -100,7 +102,21 @@ Album = (function() {
     var imgRoot;
     if (this.root) {
       imgRoot = path.join(this.root, this.structSettings.image_root);
-      return print(imgRoot);
+      return fs.mkdir(imgRoot, (function(_this) {
+        return function(err) {
+          if (err && err.code !== "EEXIST") {
+            return callback(err, null);
+          } else {
+            return store.storeDir(imagePath, _this.structSettings.format, function(err, dirs) {
+              if (err) {
+                return callback(err, null);
+              } else {
+                return print(dirs);
+              }
+            });
+          }
+        };
+      })(this));
     }
   };
 
