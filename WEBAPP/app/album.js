@@ -1,8 +1,10 @@
-var Album, ArgParse, alb, args, fs, parser, path, print;
+var Album, ArgParse, alb, args, fs, parser, path, print, utility;
 
 fs = require("fs");
 
 path = require("path");
+
+utility = require("./utility");
 
 print = function(m) {
   return console.dir(m);
@@ -28,7 +30,7 @@ Album = (function() {
         this.structSettings[k] = v;
       }
     }
-    return this.searchUp(this.structName, rootDir, (function(_this) {
+    return utility.searchUp(this.structName, rootDir, (function(_this) {
       return function(err, filePath) {
         if (err) {
           callback(err);
@@ -63,7 +65,7 @@ Album = (function() {
   };
 
   Album.prototype.open = function(rootDir, callback) {
-    return this.searchUp(this.structName, rootDir, (function(_this) {
+    return utility.searchUp(this.structName, rootDir, (function(_this) {
       return function(err, filePath) {
         if (err) {
           return callback(err, null);
@@ -92,29 +94,6 @@ Album = (function() {
         }
       };
     })(this));
-  };
-
-  Album.prototype.searchUp = function(searchName, searchDir, callback) {
-    var moveUp;
-    moveUp = function(location) {
-      var checkFile, nextLoc;
-      nextLoc = path.dirname(location);
-      if (location === nextLoc) {
-        return callback(null, null);
-      } else {
-        checkFile = path.join(location, searchName);
-        return fs.access(checkFile, function(err) {
-          if (err && err.code !== "ENOENT") {
-            return callback(err, null);
-          } else if (err) {
-            return moveUp(nextLoc);
-          } else {
-            return callback(null, checkFile);
-          }
-        });
-      }
-    };
-    return moveUp(searchDir);
   };
 
   return Album;
@@ -147,10 +126,18 @@ if (args.n) {
   alb["new"](process.cwd(), {
     image_root: "two"
   }, function(err, albDir) {
-    return print(albDir);
+    if (err) {
+      return print(err);
+    } else {
+      return print(albDir);
+    }
   });
 } else if (args.o) {
   alb.open(process.cwd(), function(err, albDir) {
-    return print(albDir);
+    if (err) {
+      return print(err);
+    } else {
+      return print(albDir);
+    }
   });
 }

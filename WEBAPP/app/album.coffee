@@ -1,6 +1,7 @@
 # Albums and their functionality
 fs = require "fs"
 path = require "path"
+utility = require "./utility"
 
 print = (m)->
   console.dir m
@@ -25,7 +26,7 @@ class Album
       for k, v of overrides
         @structSettings[k] = v
     # First check we aren't already in an album
-    @searchUp @structName, rootDir, (err, filePath)=>
+    utility.searchUp @structName, rootDir, (err, filePath)=>
       if err then callback err else
       if filePath? # Cannot create album inside another album
         callback null
@@ -43,7 +44,7 @@ class Album
   # Open an existing album
   # Callback (error, albumpath)
   open : (rootDir, callback)->
-    @searchUp @structName, rootDir, (err, filePath)=>
+    utility.searchUp @structName, rootDir, (err, filePath)=>
       if err then callback err, null
       else if filePath
         fs.readFile filePath, encoding: "utf8", (err, data)=>
@@ -59,21 +60,6 @@ class Album
               callback err, null
       else
         callback null, null
-
-  # Search recursively for a file from a location
-  # Callback (err, path)
-  searchUp : (searchName, searchDir, callback)->
-    # Ascend directories looking for file
-    moveUp = (location)->
-      nextLoc = path.dirname location
-      if location is nextLoc then callback null, null else # Nothing found
-        checkFile = path.join location, searchName
-        fs.access checkFile, (err)->
-          if err and err.code isnt "ENOENT" then callback err, null
-          else if err then moveUp nextLoc
-          else # Found a file!
-            callback null, checkFile
-    moveUp searchDir
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
@@ -96,7 +82,7 @@ args = parser.parseArgs()
 alb = new Album()
 if args.n
   alb.new process.cwd(), image_root: "two", (err, albDir)->
-    print albDir
+    if err then print err else print albDir
 else if args.o
   alb.open process.cwd(), (err, albDir)->
-    print albDir
+    if err then print err else print albDir
