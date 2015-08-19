@@ -71,8 +71,9 @@ class Album
       fs.mkdir imgRoot, (err)=>
         if err and err.code isnt "EEXIST" then callback err, null else
           store.storeDir imagePath, @structSettings.format, (err, dirs)->
-            if err then callback err, null else
+            if err then callback err, null else if dirs
               print dirs
+            else callback null, null
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

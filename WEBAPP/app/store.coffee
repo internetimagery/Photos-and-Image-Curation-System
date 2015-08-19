@@ -31,22 +31,19 @@ print = (m)->
   console.dir m
 
 # Get exif data from an image
-# Return (error, exifdata)
+# Callback (error, exifdata)
 getEXIFData = (file, callback)->
   try
     new ExifImage image : file , (err, data)->
-      if err
-        callback err, null
-      else
-        callback null, data
+      if err then callback err, null else callback null, data
   catch error
     callback error, null
 
 # Grab metadata from the file and pull out a directory format
+# callback (error, parsedPath)
 parseDir = (filePath, structure, callback)->
   getEXIFData filePath, (err, exif)->
-    if err
-      console.log "EXIF Warning: #{err.message}"
+    if err then console.log "EXIF Warning: #{err.message}"
     fs.stat filePath, (err, stats)->
       if err
         callback err, null
@@ -89,16 +86,13 @@ parseDir = (filePath, structure, callback)->
         # Sanitize file dir
 
 # Generate a file path to store the file,
+# Callback (error, {temp: "path to tempfile", dest: "relative proposed path"})
 # and a staging area path that holds a copy of the file
 storeDir = (filePath, structure, callback)->
   tmp.file prefix: "photo-", _tempFileCreated = (err, tmpPath, fd, cleanTmp)->
-    if err
-      callback err, null
-    else
+    if err then callback err, null else
       fs.stat filePath, (err, srcStats)->
-        if err
-          callback err, null
-        else
+        if err then callback err, null else
           parseDir filePath, structure, (err, fileDir)->
             if err
               console.log err.message
@@ -125,6 +119,7 @@ storeDir = (filePath, structure, callback)->
                   temp : tmpPath,
                   dest : path.join fileDir, filename
 
+# Export module
 exports.storeDir = storeDir
 #
 # ArgParse = require "argparse/lib/argparse"

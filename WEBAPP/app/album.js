@@ -110,8 +110,10 @@ Album = (function() {
             return store.storeDir(imagePath, _this.structSettings.format, function(err, dirs) {
               if (err) {
                 return callback(err, null);
-              } else {
+              } else if (dirs) {
                 return print(dirs);
+              } else {
+                return callback(null, null);
               }
             });
           }
