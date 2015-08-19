@@ -75,42 +75,6 @@ class Album
             callback null, checkFile
     moveUp searchDir
 
-
-    # """
-    # Find an album
-    # """
-    # def open(s):
-    #     root = utility.SearchUp(s.root, s.structure.replace(".", "\\."))
-    #     if root:
-    #         s.root = os.path.dirname(root)
-    #         with open(root, "r") as f:
-    #             s.settings = json.load(f)
-    #         print("Loading Album from", s.root)
-    #         return s.root
-    #     else:
-    #         print("No album found in", s.root)
-    #         return None
-    #
-    # def getPhotoDir(s):
-    #     return s.settings["image_root"]
-    #
-    # def getTagDir(s):
-    #     return s.settings["tag_root"]
-    #
-    # def getRoot(s):
-    #     return s.root
-    #
-    # def getName(s):
-    #     return os.path.basename(s.root)
-
-
-
-
-
-
-
-
-
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -119,8 +83,6 @@ parser = new ArgParse
   addHelp : true
   description : "Tag file, moving it into folder and linking original file"
 
-parser.addArgument ["folder"],
-  help : "The folder to look for an album in."
 parser.addArgument ["-n"],
   help : "Create a new album?",
   action : "storeTrue"
@@ -130,11 +92,11 @@ parser.addArgument ["-o"],
 
 args = parser.parseArgs()
 
-src = path.resolve args.folder
+# src = path.resolve args.folder
 alb = new Album()
 if args.n
-  alb.new src, image_root: "two", (err, albDir)->
+  alb.new process.cwd(), image_root: "two", (err, albDir)->
     print albDir
 else if args.o
-  alb.open src, (err, albDir)->
+  alb.open process.cwd(), (err, albDir)->
     print albDir

@@ -1,4 +1,4 @@
-var Album, ArgParse, alb, args, fs, parser, path, print, src;
+var Album, ArgParse, alb, args, fs, parser, path, print;
 
 fs = require("fs");
 
@@ -129,10 +129,6 @@ parser = new ArgParse({
   description: "Tag file, moving it into folder and linking original file"
 });
 
-parser.addArgument(["folder"], {
-  help: "The folder to look for an album in."
-});
-
 parser.addArgument(["-n"], {
   help: "Create a new album?",
   action: "storeTrue"
@@ -145,18 +141,16 @@ parser.addArgument(["-o"], {
 
 args = parser.parseArgs();
 
-src = path.resolve(args.folder);
-
 alb = new Album();
 
 if (args.n) {
-  alb["new"](src, {
+  alb["new"](process.cwd(), {
     image_root: "two"
   }, function(err, albDir) {
     return print(albDir);
   });
 } else if (args.o) {
-  alb.open(src, function(err, albDir) {
+  alb.open(process.cwd(), function(err, albDir) {
     return print(albDir);
   });
 }
