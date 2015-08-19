@@ -64,29 +64,15 @@ class Album
 
   # Insert image into album
   # Callback (error, imagePath)
-  insert : (imagePath, callback)->
+  add : (imagePath, callback)->
     if @root
       imgRoot = path.join @root, @structSettings.image_root
       # Get path to the image
-      store.storeDir imagePath, @structSettings.format, (err, dirs)->
+      store.storeFile imagePath, imgRoot, @structSettings.format, (err, store)->
         if err
           callback err, null
-        else if dirs
-          imgPath = path.join imgRoot, dirs.dest
-          fs.access imgPath, (err)->
-            if err and err.code isnt "ENOENT" then callback err, null
-            else if err
-              # File doesn't exist. Make a path to it
-              imgDir = path.dirname imgPath
-              utility.mkdirs imgDir, (err)->
-                if err then callback err, null else
-                  console.dir dirs
-                  # fs.link dirs.temp, imgPath, (err)->
-                  #   if err then callback err, null else
-                  #     callback null, imgPath
-            else
-              # File exists. Return existing file path without doing more
-              callback null, imgPath
+        else if store
+          callback null, store
         else callback name: "Error", message: "Not a valid path.", null
 
 ArgParse = require "argparse/lib/argparse"
@@ -122,6 +108,6 @@ else if args.i
     if err
       print err
     else if albumPath
-      alb.insert src, (err, imgPath)->
+      alb.add src, (err, imgPath)->
         print err
         print imgPath

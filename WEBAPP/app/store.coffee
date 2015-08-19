@@ -1,16 +1,12 @@
 # Save image into file
 
 fs = require "fs"
-tmp = require "tmp"
 path = require "path"
 crypto = require "crypto"
 moment = require "moment"
+utility = require "./utility"
 ExifImage = require "exif"
             .ExifImage
-
-
-# Set tempfiles to be cleaned if an error occurrs
-tmp.setGracefulCleanup()
 
 
 # Possible tokens for folder structure
@@ -87,38 +83,35 @@ parseDir = (filePath, structure, callback)->
 # Generate a file path to store the file,
 # Callback (error, {temp: "path to tempfile", dest: "relative proposed path"})
 # and a staging area path that holds a copy of the file
-storeDir = (filePath, structure, callback)->
-  tmp.file prefix: "photo-", _tempFileCreated = (err, tmpPath, fd, cleanTmp)->
+storeFile = (src, dest, structure, callback)->
+  fs.stat src, (err, srcStats)->
     if err then callback err, null else
-      fs.stat filePath, (err, srcStats)->
-        if err then callback err, null else
-          parseDir filePath, structure, (err, fileDir)->
-            if err
-              console.log err.message
-            else
-              srcParts = path.parse filePath # The pieces of the filename
-              src = fs.createReadStream filePath # Stream the files data
-              dest = fs.createWriteStream tmpPath, fd : fd
-              hash = crypto.createHash "SHA256"
-              hash.setEncoding "hex"
-              src.on "error", (err)->
+      parseDir src, structure, (err, fileDir)->
+        if err then console.log err.message
+        fs.readFile src, (err, data)->
+          if err then callback err, null else
+            hash = crypto.createHash "SHA256"
+            hash.update data
+            fingerprint = hash.digest "hex"
+            ext = path.extname src
+            filename = "#{fingerprint}-#{srcStats.size}#{ext}"
+            fileRoot = path.join dest, fileDir
+            filePath = path.join fileRoot, filename
+            # Finally got a file path to work with. Now does it exist?
+            fs.access filePath, (err)->
+              if err and err.code isnt "ENOENT"
                 callback err, null
-              dest.on "error", (err)->
-                callback err, null
-                # Might callback twice, but it's with an error so who cares
-              src.on "data", (buffer)->
-                hash.update buffer
-                dest.write buffer
-              src.on "end", ()->
-                hash.end()
-                dest.end()
-                filename = "#{hash.read()}-#{srcStats.size}#{srcParts.ext}"
-                callback null,
-                  temp : tmpPath,
-                  dest : path.join fileDir, filename
+              else if err
+                utility.mkdirs fileRoot, (err)->
+                  if err then callback err, null else
+                    fs.writeFile filePath, data, (err)->
+                      if err then callback err, null else
+                        callback null, filePath
+              else
+                callback null, filePath
 
 # Export module
-exports.storeDir = storeDir
+exports.storeFile = storeFile
 #
 # ArgParse = require "argparse/lib/argparse"
 # .ArgumentParser
@@ -136,6 +129,6 @@ exports.storeDir = storeDir
 # args = parser.parseArgs()
 #
 # src = path.resolve args.source
-# storeDir src, args.structure, (err, dir)->
+# storeFile src, args.structure, (err, dir)->
 #   print err
 #   print dir

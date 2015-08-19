@@ -1,8 +1,6 @@
-var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, print, storeDir, tmp;
+var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, print, storeFile, utility;
 
 fs = require("fs");
-
-tmp = require("tmp");
 
 path = require("path");
 
@@ -10,9 +8,9 @@ crypto = require("crypto");
 
 moment = require("moment");
 
-ExifImage = require("exif").ExifImage;
+utility = require("./utility");
 
-tmp.setGracefulCleanup();
+ExifImage = require("exif").ExifImage;
 
 print = function(m) {
   return console.dir(m);
@@ -103,56 +101,53 @@ parseDir = function(filePath, structure, callback) {
   });
 };
 
-storeDir = function(filePath, structure, callback) {
-  var _tempFileCreated;
-  return tmp.file({
-    prefix: "photo-"
-  }, _tempFileCreated = function(err, tmpPath, fd, cleanTmp) {
+storeFile = function(src, dest, structure, callback) {
+  return fs.stat(src, function(err, srcStats) {
     if (err) {
       return callback(err, null);
     } else {
-      return fs.stat(filePath, function(err, srcStats) {
+      return parseDir(src, structure, function(err, fileDir) {
         if (err) {
-          return callback(err, null);
-        } else {
-          return parseDir(filePath, structure, function(err, fileDir) {
-            var dest, hash, src, srcParts;
-            if (err) {
-              return console.log(err.message);
-            } else {
-              srcParts = path.parse(filePath);
-              src = fs.createReadStream(filePath);
-              dest = fs.createWriteStream(tmpPath, {
-                fd: fd
-              });
-              hash = crypto.createHash("SHA256");
-              hash.setEncoding("hex");
-              src.on("error", function(err) {
-                return callback(err, null);
-              });
-              dest.on("error", function(err) {
-                return callback(err, null);
-              });
-              src.on("data", function(buffer) {
-                hash.update(buffer);
-                return dest.write(buffer);
-              });
-              return src.on("end", function() {
-                var filename;
-                hash.end();
-                dest.end();
-                filename = "" + (hash.read()) + "-" + srcStats.size + srcParts.ext;
-                return callback(null, {
-                  temp: tmpPath,
-                  dest: path.join(fileDir, filename)
-                });
-              });
-            }
-          });
+          console.log(err.message);
         }
+        return fs.readFile(src, function(err, data) {
+          var ext, filePath, fileRoot, filename, fingerprint, hash;
+          if (err) {
+            return callback(err, null);
+          } else {
+            hash = crypto.createHash("SHA256");
+            hash.update(data);
+            fingerprint = hash.digest("hex");
+            ext = path.extname(src);
+            filename = "" + fingerprint + "-" + srcStats.size + ext;
+            fileRoot = path.join(dest, fileDir);
+            filePath = path.join(fileRoot, filename);
+            return fs.access(filePath, function(err) {
+              if (err && err.code !== "ENOENT") {
+                return callback(err, null);
+              } else if (err) {
+                return utility.mkdirs(fileRoot, function(err) {
+                  if (err) {
+                    return callback(err, null);
+                  } else {
+                    return fs.writeFile(filePath, data, function(err) {
+                      if (err) {
+                        return callback(err, null);
+                      } else {
+                        return callback(null, filePath);
+                      }
+                    });
+                  }
+                });
+              } else {
+                return callback(null, filePath);
+              }
+            });
+          }
+        });
       });
     }
   });
 };
 
-exports.storeDir = storeDir;
+exports.storeFile = storeFile;

@@ -101,33 +101,15 @@ Album = (function() {
     })(this));
   };
 
-  Album.prototype.insert = function(imagePath, callback) {
+  Album.prototype.add = function(imagePath, callback) {
     var imgRoot;
     if (this.root) {
       imgRoot = path.join(this.root, this.structSettings.image_root);
-      return store.storeDir(imagePath, this.structSettings.format, function(err, dirs) {
-        var imgPath;
+      return store.storeFile(imagePath, imgRoot, this.structSettings.format, function(err, store) {
         if (err) {
           return callback(err, null);
-        } else if (dirs) {
-          imgPath = path.join(imgRoot, dirs.dest);
-          return fs.access(imgPath, function(err) {
-            var imgDir;
-            if (err && err.code !== "ENOENT") {
-              return callback(err, null);
-            } else if (err) {
-              imgDir = path.dirname(imgPath);
-              return utility.mkdirs(imgDir, function(err) {
-                if (err) {
-                  return callback(err, null);
-                } else {
-                  return console.dir(dirs);
-                }
-              });
-            } else {
-              return callback(null, imgPath);
-            }
-          });
+        } else if (store) {
+          return callback(null, store);
         } else {
           return callback({
             name: "Error",
@@ -190,7 +172,7 @@ if (args.n) {
     if (err) {
       return print(err);
     } else if (albumPath) {
-      return alb.insert(src, function(err, imgPath) {
+      return alb.add(src, function(err, imgPath) {
         print(err);
         return print(imgPath);
       });
