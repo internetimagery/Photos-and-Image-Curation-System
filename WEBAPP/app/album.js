@@ -9,9 +9,9 @@ print = function(m) {
 };
 
 Album = (function() {
-  function Album(root) {
-    this.root = root;
-    this.struct = "Album_Structure.json";
+  function Album() {
+    this.root = "";
+    this.struct = "structure.album";
     this.defaults = {
       last_check: new Date(),
       image_root: "Photos",
@@ -20,42 +20,69 @@ Album = (function() {
     };
   }
 
-  Album.prototype["new"] = function(overrides) {
-    var k, v, _results;
+  Album.prototype["new"] = function(rootDir, overrides, callback) {
+    var k, v;
     if (overrides != null) {
-      _results = [];
       for (k in overrides) {
         v = overrides[k];
-        _results.push(this.defaults[k] = v);
+        this.defaults[k] = v;
       }
-      return _results;
     }
-  };
+    return this.searchUp(this.struct, rootDir, (function(_this) {
+      return function(err, filePath) {
+        if (err) {
+          callback(err);
+        } else {
 
-  Album.prototype.searchUp = function(callback) {
-    var moveUp;
-    moveUp = (function(_this) {
-      return function(location) {
-        var checkFile, nextLoc;
-        print("location " + location);
-        nextLoc = path.dirname(location);
-        if (location !== nextLoc) {
-          checkFile = path.join(location, _this.struct);
-          return fs.readFile(checkFile, {
-            encoding: "utf8"
-          }, function(err, data) {
-            if (err && err.code !== "ENOENT") {
-              throw err;
-            } else if (err) {
-              return moveUp(nextLoc);
+        }
+        if (filePath != null) {
+          return callback(null);
+        } else {
+          return fs.mkdir(rootDir, function(err) {
+            var structData, structFile;
+            if (err && err.code !== "EEXIST") {
+              return callback(err);
             } else {
-              return print("FOUND FILE!");
+              structFile = path.join(rootDir, _this.struct);
+              structData = JSON.stringify(_this.defaults, null, 2);
+              return fs.writeFile(structFile, structData, {
+                encoding: "utf8"
+              }, function(err) {
+                if (err) {
+                  return callback(err);
+                } else {
+                  _this.root = rootDir;
+                  return callback(rootDir);
+                }
+              });
             }
           });
         }
       };
-    })(this);
-    return moveUp(this.root);
+    })(this));
+  };
+
+  Album.prototype.searchUp = function(searchName, searchDir, callback) {
+    var moveUp;
+    moveUp = function(location) {
+      var checkFile, nextLoc;
+      nextLoc = path.dirname(location);
+      if (location === nextLoc) {
+        return callback(null, null);
+      } else {
+        checkFile = path.join(location, searchName);
+        return fs.access(checkFile, function(err) {
+          if (err && err.code !== "ENOENT") {
+            return callback(err, null);
+          } else if (err) {
+            return moveUp(nextLoc);
+          } else {
+            return callback(null, checkFile);
+          }
+        });
+      }
+    };
+    return moveUp(searchDir);
   };
 
   return Album;
@@ -83,10 +110,12 @@ args = parser.parseArgs();
 
 src = path.resolve(args.folder);
 
-alb = new Album(src);
+alb = new Album();
 
 if (args.n) {
-  alb["new"]({
+  alb["new"](src, {
     image_root: "two"
+  }, function(albDir) {
+    return print(albDir);
   });
 }
