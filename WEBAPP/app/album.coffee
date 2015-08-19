@@ -33,8 +33,8 @@ class Album
         callback null
       else
         # Create our files!
-        fs.mkdir rootDir, (err)=>
-          if err and err.code isnt "EEXIST" then callback err, null else
+        utility.mkdirs rootDir, (err)=>
+          if err then callback err, null else
             structFile = path.join rootDir, @structName
             structData = JSON.stringify @structSettings, null, 2
             fs.writeFile structFile, structData, encoding: "utf8", (err)=>
@@ -67,21 +67,27 @@ class Album
   insert : (imagePath, callback)->
     if @root
       imgRoot = path.join @root, @structSettings.image_root
-      # Make the image file if it doesn't already exist
-      fs.mkdir imgRoot, (err)=>
-        if err and err.code isnt "EEXIST" then callback err, null else
-          store.storeDir imagePath, @structSettings.format, (err, dirs)->
-            if err then callback err, null else if dirs
-              imgPath = path.join imgRoot, dirs.dest
-              fs.access imgPath, (err)->
-                if err and err.code isnt "ENOENT" then callback err, null
-                else if err
-                  # File doesn't exist. Move it across
-                  print "ok"
-                else
-                  # File exists. Return existing file path without doing more
-                  callback null, imgPath
-            else callback name: "Error", message: "Not a valid path.", null
+      # Get path to the image
+      store.storeDir imagePath, @structSettings.format, (err, dirs)->
+        if err
+          callback err, null
+        else if dirs
+          imgPath = path.join imgRoot, dirs.dest
+          fs.access imgPath, (err)->
+            if err and err.code isnt "ENOENT" then callback err, null
+            else if err
+              # File doesn't exist. Make a path to it
+              imgDir = path.dirname imgPath
+              utility.mkdirs imgDir, (err)->
+                if err then callback err, null else
+                  console.dir dirs
+                  # fs.link dirs.temp, imgPath, (err)->
+                  #   if err then callback err, null else
+                  #     callback null, imgPath
+            else
+              # File exists. Return existing file path without doing more
+              callback null, imgPath
+        else callback name: "Error", message: "Not a valid path.", null
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

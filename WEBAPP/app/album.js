@@ -42,9 +42,9 @@ Album = (function() {
         if (filePath != null) {
           return callback(null);
         } else {
-          return fs.mkdir(rootDir, function(err) {
+          return utility.mkdirs(rootDir, function(err) {
             var structData, structFile;
-            if (err && err.code !== "EEXIST") {
+            if (err) {
               return callback(err, null);
             } else {
               structFile = path.join(rootDir, _this.structName);
@@ -105,36 +105,36 @@ Album = (function() {
     var imgRoot;
     if (this.root) {
       imgRoot = path.join(this.root, this.structSettings.image_root);
-      return fs.mkdir(imgRoot, (function(_this) {
-        return function(err) {
-          if (err && err.code !== "EEXIST") {
-            return callback(err, null);
-          } else {
-            return store.storeDir(imagePath, _this.structSettings.format, function(err, dirs) {
-              var imgPath;
-              if (err) {
-                return callback(err, null);
-              } else if (dirs) {
-                imgPath = path.join(imgRoot, dirs.dest);
-                return fs.access(imgPath, function(err) {
-                  if (err && err.code !== "ENOENT") {
-                    return callback(err, null);
-                  } else if (err) {
-                    return print("ok");
-                  } else {
-                    return callback(null, imgPath);
-                  }
-                });
-              } else {
-                return callback({
-                  name: "Error",
-                  message: "Not a valid path."
-                }, null);
-              }
-            });
-          }
-        };
-      })(this));
+      return store.storeDir(imagePath, this.structSettings.format, function(err, dirs) {
+        var imgPath;
+        if (err) {
+          return callback(err, null);
+        } else if (dirs) {
+          imgPath = path.join(imgRoot, dirs.dest);
+          return fs.access(imgPath, function(err) {
+            var imgDir;
+            if (err && err.code !== "ENOENT") {
+              return callback(err, null);
+            } else if (err) {
+              imgDir = path.dirname(imgPath);
+              return utility.mkdirs(imgDir, function(err) {
+                if (err) {
+                  return callback(err, null);
+                } else {
+                  return console.dir(dirs);
+                }
+              });
+            } else {
+              return callback(null, imgPath);
+            }
+          });
+        } else {
+          return callback({
+            name: "Error",
+            message: "Not a valid path."
+          }, null);
+        }
+      });
     }
   };
 

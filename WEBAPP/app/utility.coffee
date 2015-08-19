@@ -38,7 +38,6 @@ mkdirs = (dirPath, callback)->
     currDir = paths[index]
     fs.mkdir currDir, (err)->
       if err and err.code isnt "EEXIST" then callback err
-      console.log currDir
       if index
         move index - 1
       else

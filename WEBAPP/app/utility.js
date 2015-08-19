@@ -55,7 +55,6 @@ mkdirs = function(dirPath, callback) {
       if (err && err.code !== "EEXIST") {
         callback(err);
       }
-      console.log(currDir);
       if (index) {
         return move(index - 1);
       } else {
