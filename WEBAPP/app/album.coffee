@@ -9,37 +9,59 @@ print = (m)->
 class Album
   constructor : ()->
     @root = ""
-    @struct = "structure.album" # File containing the albums information
-    @defaults =
+    @structName = "structure.album" # File containing the albums information
+    @structSettings =
       last_check  : new Date()
       image_root  : "Photos"
       tag_root    : "Tags"
       format      : "<year>/<month>/<day>"
 
   # Create a new Album with optional overrides to the default settings
+  # Callback (error, albumpath)
   new : (rootDir, overrides, callback)->
     # console.log "Attempting to create album in #{@root}"
     # Override defaults
     if overrides?
       for k, v of overrides
-        @defaults[k] = v
+        @structSettings[k] = v
     # First check we aren't already in an album
-    @searchUp @struct, rootDir, (err, filePath)=>
+    @searchUp @structName, rootDir, (err, filePath)=>
       if err then callback err else
       if filePath? # Cannot create album inside another album
         callback null
       else
         # Create our files!
         fs.mkdir rootDir, (err)=>
-          if err and err.code isnt "EEXIST" then callback err else
-            structFile = path.join rootDir, @struct
-            structData = JSON.stringify @defaults, null, 2
+          if err and err.code isnt "EEXIST" then callback err, null else
+            structFile = path.join rootDir, @structName
+            structData = JSON.stringify @structSettings, null, 2
             fs.writeFile structFile, structData, encoding: "utf8", (err)=>
-              if err then callback err else
+              if err then callback err, null else
                 @root = rootDir
-                callback rootDir
+                callback null, rootDir
 
-  # Search recursively for a file from a location. return (err, path)
+  # Open an existing album
+  # Callback (error, albumpath)
+  open : (rootDir, callback)->
+    @searchUp @structName, rootDir, (err, filePath)=>
+      if err then callback err, null
+      else if filePath
+        fs.readFile filePath, encoding: "utf8", (err, data)=>
+          if err then callback err, null else
+            try
+              # Parse out the data again
+              stats = JSON.parse data
+              stats.last_check = new Date stats.last_check
+              @structSettings = stats
+              @root = path.dirname filePath
+              callback null, filePath
+            catch err
+              callback err, null
+      else
+        callback null, null
+
+  # Search recursively for a file from a location
+  # Callback (err, path)
   searchUp : (searchName, searchDir, callback)->
     # Ascend directories looking for file
     moveUp = (location)->
@@ -102,11 +124,17 @@ parser.addArgument ["folder"],
 parser.addArgument ["-n"],
   help : "Create a new album?",
   action : "storeTrue"
+parser.addArgument ["-o"],
+  help : "Open existing album?",
+  action : "storeTrue"
 
 args = parser.parseArgs()
 
 src = path.resolve args.folder
 alb = new Album()
 if args.n
-  alb.new src, image_root: "two", (albDir)->
+  alb.new src, image_root: "two", (err, albDir)->
+    print albDir
+else if args.o
+  alb.open src, (err, albDir)->
     print albDir
