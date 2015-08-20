@@ -5,28 +5,36 @@ print = (m)->
 
 
 # A GUI element
-class Window
+class guiWindow
   constructor : (@element)->
     @element.addEventListener "mousemove", @mousemove
     @element.addEventListener "mousedown", @mousedown
     @element.addEventListener "mouseup", @mouseup
-  getSize : ()->
-    @element.getBoundingClientRect()
-  setSize : (height, width)->
-    @element.width = width
-    @element.height = height
-  mousemove : (ev)->
-    console.log "moving mouse"
-  mouseup : (ev)->
-    console.log "mouse up!"
-  mousedown : (ev)->
-    console.log "mouse down!"
+    @_dragCheck = false
+  mousemove : (ev)=>
+    @_dragCheck = true
+    # @dragging ev
+  mouseup : (ev)=>
+    if @_dragCheck
+      @dragged ev
+    else
+      @clicked ev
+  mousedown : (ev)=>
+    @_dragCheck = false
+  clicked : (ev)->
+    console.log "Clicked"
+  dragged : (ev)->
+    console.log "Dragged"
+  # dragging : (ev)->
+  #   console.log "Dragging!"
 
-class Menu extends Window
-  mousedown : (ev)->
-    console.log "actually down"
+class Menu extends guiWindow
+  clicked : (ev)->
+    console.log "hey I got clicked"
 
-GUI_Menu = new Menu document.getElementById "menubar"
+
+@GUI_Menu = new Menu document.getElementById "menubar"
+print GUI_Menu.clicked
 
 # flag = 0
 # element = document.getElementById "divider"
