@@ -33,7 +33,7 @@ class Album
       if err
         callback err, null
       else if filePath? # Cannot create album inside another album
-        callback name: "Error", message: "Cannot create Album inside another", null
+        callback new Error("Cannot create Album inside another"), null
       else
         # Create our files!
         utility.mkdirs rootDir, (err)=>

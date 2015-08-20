@@ -40,10 +40,7 @@ Album = (function() {
         if (err) {
           return callback(err, null);
         } else if (filePath != null) {
-          return callback({
-            name: "Error",
-            message: "Cannot create Album inside another"
-          }, null);
+          return callback(new Error("Cannot create Album inside another"), null);
         } else {
           return utility.mkdirs(rootDir, function(err) {
             var structData, structFile;

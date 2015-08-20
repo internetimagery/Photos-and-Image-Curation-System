@@ -2,7 +2,8 @@
 
 TEMP/*
 tutorial/*
-WEBAPP/node_modules/*
+node_modules/*
+OLD_PYTHON_APP/*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
