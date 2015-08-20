@@ -120,6 +120,15 @@ Album = (function() {
     }
   };
 
+  Album.prototype.tag = function(imagePath, tagName, callback) {
+    var tagDir, tagPath;
+    if (this.root) {
+      tagDir = path.join(this.root, this.structSettings.tag_root, tagName);
+      tagPath = path.join(tagDir, path.basename(imagePath));
+      return console.log(tagPath);
+    }
+  };
+
   return Album;
 
 })();
@@ -144,6 +153,11 @@ parser.addArgument(["-o"], {
 
 parser.addArgument(["-i"], {
   help: "Insert a photo / image"
+});
+
+parser.addArgument(["-t"], {
+  help: "Image to tag and tag name",
+  nargs: 2
 });
 
 args = parser.parseArgs();
@@ -173,6 +187,18 @@ if (args.n) {
       return print(err);
     } else if (albumPath) {
       return alb.add(src, function(err, imgPath) {
+        print(err);
+        return print(imgPath);
+      });
+    }
+  });
+} else if (args.t) {
+  src = path.resolve(args.t[0]);
+  alb.open(process.cwd(), function(err, albumPath) {
+    if (err) {
+      return print(err);
+    } else if (albumPath) {
+      return alb.tag(src, args.t[1], function(err, imgPath) {
         print(err);
         return print(imgPath);
       });

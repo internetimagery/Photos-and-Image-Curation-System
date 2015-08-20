@@ -76,6 +76,14 @@ class Album
           callback null, store
         else callback name: "Error", message: "Not a valid path.", null
 
+  # Tag an image in the collection
+  # Callback (error, tagPath)
+  tag : (imagePath, tagName, callback)->
+    if @root
+      tagDir = path.join @root, @structSettings.tag_root, tagName
+      tagPath = path.join tagDir, path.basename imagePath
+      # utility.mkdirs tagDir
+      console.log tagPath
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -91,7 +99,10 @@ parser.addArgument ["-o"],
   help : "Open existing album?",
   action : "storeTrue"
 parser.addArgument ["-i"],
-  help : "Insert a photo / image",
+  help : "Insert a photo / image"
+parser.addArgument ["-t"],
+  help : "Image to tag and tag name",
+  nargs : 2
 
 args = parser.parseArgs()
 
@@ -110,5 +121,14 @@ else if args.i
       print err
     else if albumPath
       alb.add src, (err, imgPath)->
+        print err
+        print imgPath
+else if args.t
+  src = path.resolve args.t[0]
+  alb.open process.cwd(), (err, albumPath)->
+    if err
+      print err
+    else if albumPath
+      alb.tag src, args.t[1], (err, imgPath)->
         print err
         print imgPath
