@@ -1,4 +1,4 @@
-var fs, mkdirs, path, pathSplit, print, searchDown, searchUp;
+var cleanRemove, fs, mkdirs, path, pathSplit, searchUp;
 
 fs = require("fs");
 
@@ -24,9 +24,7 @@ searchUp = function(searchName, searchDir, callback) {
   paths = pathSplit(searchDir);
   moveUp = function(index) {
     var checkFile;
-    if (index === paths.length) {
-      return callback(null, null);
-    } else {
+    if (index < paths.length) {
       checkFile = path.join(paths[index], searchName);
       return fs.access(checkFile, function(err) {
         if (err && err.code !== "ENOENT") {
@@ -37,38 +35,11 @@ searchUp = function(searchName, searchDir, callback) {
           return callback(null, checkFile);
         }
       });
+    } else {
+      return callback(null, null);
     }
   };
   return moveUp(0);
-};
-
-print = function(m) {
-  return console.dir(m);
-};
-
-searchDown = function(searchName, searchDir, limit, callback) {
-  var moveDown, results;
-  results = [];
-  moveDown = function(location, stop) {
-    if (stop) {
-      fs.readdir(location, function(err, files) {
-        var f, nextDir, _i, _len;
-        if (err && err.code !== "ENOTDIR") {
-          callback(err, null);
-          print(location);
-        }
-        print(err);
-        for (_i = 0, _len = files.length; _i < _len; _i++) {
-          f = files[_i];
-          nextDir = path.join(location, f);
-          moveDown(nextDir, stop - 1);
-        }
-        return print(files);
-      });
-      return console.log(location);
-    }
-  };
-  return moveDown(searchDir, limit);
 };
 
 mkdirs = function(dirPath, callback) {
@@ -91,6 +62,33 @@ mkdirs = function(dirPath, callback) {
   return move(paths.length - 1);
 };
 
+cleanRemove = function(filePath, callback) {
+  var paths, remove;
+  paths = pathSplit(path.dirname(filePath));
+  remove = function(index) {
+    if (index < paths.length) {
+      return fs.rmdir(paths[index], function(err) {
+        if (err && err.code !== "ENOTEMPTY") {
+          return callback(err);
+        } else if (err) {
+          return callback();
+        } else {
+          return remove(index + 1);
+        }
+      });
+    }
+  };
+  return fs.unlink(filePath, function(err) {
+    if (err) {
+      return callback(err, null);
+    } else {
+      return remove(0);
+    }
+  });
+};
+
 exports.searchUp = searchUp;
 
 exports.mkdirs = mkdirs;
+
+exports.cleanRemove = cleanRemove;

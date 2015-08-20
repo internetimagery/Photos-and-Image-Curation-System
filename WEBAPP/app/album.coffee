@@ -63,7 +63,7 @@ class Album
             catch err
               callback err, null
       else
-        callback name: "Error", message: "Could not find Album", null
+        callback new Error("Could not find Album"), null
 
   # Insert image into album
   # Callback (error, imagePath)
@@ -76,7 +76,9 @@ class Album
           callback err, null
         else if store
           callback null, store
-        else callback name: "Error", message: "Not a valid path.", null
+        else callback new Error("Not a valid path."), null
+    else
+      callback new Error("Album root is not defined"), null
 
   # Tag an image in the collection
   # Callback (error, tagPath)
@@ -91,14 +93,40 @@ class Album
               callback err, null
             else
               callback null, tagPath
+    else
+      callback new Error("Album root is not defined"), null
+
 
   # Remove image from album
   # Callback (error, trashPath)
   remove : (imagePath, callback)->
-    fs.stat imagePath, (err, stats)->
-      if err then callback err, null else
-        if stats.nlink > 1
-          imageID = stats.ino
+    if @root
+      fs.stat imagePath, (err, stats)=>
+        if err then callback err, null else
+          if stats.nlink > 1 # If there are tags, remove them
+            imageID = stats.ino
+            tagDir = path.join @root, @structSettings.tag_root
+            search = finder tagDir
+            search.on "file", (file, stat)->
+              if stat.ino is imageID
+                tagName = path.basename path.dirname file
+                console.log "Removing tag #{tagName}."
+                utility.cleanRemove file, (err)->
+                  if err then callback err, null
+          trashDir = path.join @root, @structSettings.trash_root
+          utility.mkdirs trashDir, (err)->
+            if err then callback err, null else
+              trashPath = path.join trashDir, path.basename imagePath
+              fs.link imagePath, trashPath, (err)->
+                if err and err.code isnt "EEXIST"
+                  callback err, null
+                else
+                  utility.cleanRemove imagePath, (err)->
+                    if err then callback err, null else
+                      callback null, trashPath
+    else
+      callback new Error("Album root is not defined"), null
+
 
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser

@@ -19,71 +19,18 @@ searchUp = (searchName, searchDir, callback)->
   # Ascend directories looking for file
   paths = pathSplit searchDir
   moveUp = (index)->
-    if index is paths.length
-      # File not found
-      callback null, null
-    else # Nothing found
+    if index < paths.length
+      # Continue looking
       checkFile = path.join paths[index], searchName
       fs.access checkFile, (err)->
         if err and err.code isnt "ENOENT" then callback err, null
         else if err then moveUp index + 1
         else # Found a file!
           callback null, checkFile
+    else
+      # File not found
+      callback null, null
   moveUp 0
-
-print = (m)->
-  console.dir m
-
-# Search down for a file, decending into subfodlers
-# Callback (error, matches)
-searchDown = (searchName, searchDir, limit, callback)->
-  results = []
-  moveDown = (location, stop)->
-    if stop
-      fs.readdir location, (err, files)->
-        if err and err.code isnt "ENOTDIR"
-          callback err, null
-          print location
-        print err
-        for f in files
-          nextDir = path.join location, f
-          moveDown nextDir, stop - 1
-        print files
-      console.log location
-  moveDown searchDir, limit
-
-
-#
-# var walk = function(dir, done) {
-#   var results = [];
-#   fs.readdir(dir, function(err, list) {
-#     if (err) return done(err);
-#     var pending = list.length;
-#     if (!pending) return done(null, results);
-#     list.forEach(function(file) {
-#       file = path.resolve(dir, file);
-#       fs.stat(file, function(err, stat) {
-#         if (stat && stat.isDirectory()) {
-#           walk(file, function(err, res) {
-#             results = results.concat(res);
-#             if (!--pending) done(null, results);
-#           });
-#         } else {
-#           results.push(file);
-#           if (!--pending) done(null, results);
-#         }
-#       });
-#     });
-#   });
-# };
-#
-#
-#   
-#
-#
-# searchDown "thing", process.cwd(), 2, (err, matches)->
-#   print err
-#   print matches
 
 # Create path if it doesn't exist
 # Callback (error)
@@ -99,6 +46,24 @@ mkdirs = (dirPath, callback)->
         callback()
   move paths.length - 1
 
+# Remove file and all empty directories upward
+# Callback (error)
+cleanRemove = (filePath, callback)->
+  paths = pathSplit path.dirname filePath
+  remove = (index)->
+    if index < paths.length
+      fs.rmdir paths[index], (err)->
+        if err and err.code isnt "ENOTEMPTY"
+          callback err
+        else if err
+          callback()
+        else
+          remove index + 1
+  fs.unlink filePath, (err)->
+    if err then callback err, null else
+      remove 0
+
 # Export functions
 exports.searchUp = searchUp
 exports.mkdirs = mkdirs
+exports.cleanRemove = cleanRemove

@@ -95,10 +95,7 @@ Album = (function() {
             }
           });
         } else {
-          return callback({
-            name: "Error",
-            message: "Could not find Album"
-          }, null);
+          return callback(new Error("Could not find Album"), null);
         }
       };
     })(this));
@@ -114,12 +111,11 @@ Album = (function() {
         } else if (store) {
           return callback(null, store);
         } else {
-          return callback({
-            name: "Error",
-            message: "Not a valid path."
-          }, null);
+          return callback(new Error("Not a valid path."), null);
         }
       });
+    } else {
+      return callback(new Error("Album root is not defined"), null);
     }
   };
 
@@ -141,20 +137,64 @@ Album = (function() {
           });
         }
       });
+    } else {
+      return callback(new Error("Album root is not defined"), null);
     }
   };
 
   Album.prototype.remove = function(imagePath, callback) {
-    return fs.stat(imagePath, function(err, stats) {
-      var imageID;
-      if (err) {
-        return callback(err, null);
-      } else {
-        if (stats.nlink > 1) {
-          return imageID = stats.ino;
-        }
-      }
-    });
+    if (this.root) {
+      return fs.stat(imagePath, (function(_this) {
+        return function(err, stats) {
+          var imageID, search, tagDir, trashDir;
+          if (err) {
+            return callback(err, null);
+          } else {
+            if (stats.nlink > 1) {
+              imageID = stats.ino;
+              tagDir = path.join(_this.root, _this.structSettings.tag_root);
+              search = finder(tagDir);
+              search.on("file", function(file, stat) {
+                var tagName;
+                if (stat.ino === imageID) {
+                  tagName = path.basename(path.dirname(file));
+                  console.log("Removing tag " + tagName + ".");
+                  return utility.cleanRemove(file, function(err) {
+                    if (err) {
+                      return callback(err, null);
+                    }
+                  });
+                }
+              });
+            }
+            trashDir = path.join(_this.root, _this.structSettings.trash_root);
+            return utility.mkdirs(trashDir, function(err) {
+              var trashPath;
+              if (err) {
+                return callback(err, null);
+              } else {
+                trashPath = path.join(trashDir, path.basename(imagePath));
+                return fs.link(imagePath, trashPath, function(err) {
+                  if (err && err.code !== "EEXIST") {
+                    return callback(err, null);
+                  } else {
+                    return utility.cleanRemove(imagePath, function(err) {
+                      if (err) {
+                        return callback(err, null);
+                      } else {
+                        return callback(null, trashPath);
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        };
+      })(this));
+    } else {
+      return callback(new Error("Album root is not defined"), null);
+    }
   };
 
   return Album;
