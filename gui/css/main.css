@@ -1,0 +1,26 @@
+/*Main window*/
+
+#menubar {
+  background-color: pink;
+  height: 50px;
+}
+
+#navigation-wrapper {
+  background-color: orange;
+  display: inline-block;
+}
+
+#divider {
+  background-color: grey;
+  display: inline-block;
+  border-left: 3px solid black;
+  border-right: 3px solid black;
+  width: 10px;
+  text-align: center;
+  cursor: grab;
+}
+
+#display-wrapper {
+  background-color: blue;
+  display: inline-block;
+}

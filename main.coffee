@@ -12,7 +12,7 @@ app.on "window-all-closed", ()->
 # When app is ready to begin. BEGIN!
 app.on "ready", ()->
   mainWindow = new BrowserWindow
-    width : 800
+    width : 960
     height : 600
 
   # Load our first page
