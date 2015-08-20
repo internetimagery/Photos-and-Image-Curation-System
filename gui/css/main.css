@@ -3,24 +3,26 @@
 #menubar {
   background-color: pink;
   height: 50px;
+  clear: both;
 }
 
 #navigation-wrapper {
   background-color: orange;
-  display: inline-block;
+  float: left;
 }
 
 #divider {
   background-color: grey;
-  display: inline-block;
+  float: left;
   border-left: 3px solid black;
   border-right: 3px solid black;
-  width: 10px;
+  width: 30px;
+  height: 50px;
   text-align: center;
   cursor: grab;
 }
 
 #display-wrapper {
   background-color: blue;
-  display: inline-block;
+  float: left;
 }
