@@ -1,8 +1,9 @@
 # Albums and their functionality
 fs = require "fs"
 path = require "path"
-utility = require "./utility"
 store = require "./store"
+finder = require "findit"
+utility = require "./utility"
 
 print = (m)->
   console.dir m
@@ -15,6 +16,7 @@ class Album
     @structSettings =
       last_check  : new Date()
       image_root  : "Photos"
+      trash_root  : "Trash"
       tag_root    : "Tags"
       format      : "<year>/<month>/<day>"
 
@@ -90,6 +92,14 @@ class Album
             else
               callback null, tagPath
 
+  # Remove image from album
+  # Callback (error, trashPath)
+  remove : (imagePath, callback)->
+    fs.stat imagePath, (err, stats)->
+      if err then callback err, null else
+        if stats.nlink > 1
+          imageID = stats.ino
+
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
@@ -109,6 +119,8 @@ parser.addArgument ["-i"],
 parser.addArgument ["-t"],
   help : "Image to tag and tag name",
   nargs : 2
+parser.addArgument ["-r"],
+  help : "Remove a photo / image"
 
 args = parser.parseArgs()
 
@@ -138,3 +150,12 @@ else if args.t
       alb.tag src, args.t[1], (err, imgPath)->
         print err
         print imgPath
+else if args.r
+  src = path.resolve args.r
+  alb.open process.cwd(), (err, albumPath)->
+    if err
+      print err
+    else if albumPath
+      alb.remove src, (err, trashPath)->
+        print err
+        print trashPath

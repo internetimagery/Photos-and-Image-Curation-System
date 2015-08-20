@@ -1,4 +1,4 @@
-var fs, mkdirs, path, pathSplit, searchUp;
+var fs, mkdirs, path, pathSplit, print, searchDown, searchUp;
 
 fs = require("fs");
 
@@ -40,6 +40,35 @@ searchUp = function(searchName, searchDir, callback) {
     }
   };
   return moveUp(0);
+};
+
+print = function(m) {
+  return console.dir(m);
+};
+
+searchDown = function(searchName, searchDir, limit, callback) {
+  var moveDown, results;
+  results = [];
+  moveDown = function(location, stop) {
+    if (stop) {
+      fs.readdir(location, function(err, files) {
+        var f, nextDir, _i, _len;
+        if (err && err.code !== "ENOTDIR") {
+          callback(err, null);
+          print(location);
+        }
+        print(err);
+        for (_i = 0, _len = files.length; _i < _len; _i++) {
+          f = files[_i];
+          nextDir = path.join(location, f);
+          moveDown(nextDir, stop - 1);
+        }
+        return print(files);
+      });
+      return console.log(location);
+    }
+  };
+  return moveDown(searchDir, limit);
 };
 
 mkdirs = function(dirPath, callback) {

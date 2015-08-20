@@ -1,12 +1,14 @@
-var Album, ArgParse, alb, args, fs, parser, path, print, src, store, utility;
+var Album, ArgParse, alb, args, finder, fs, parser, path, print, src, store, utility;
 
 fs = require("fs");
 
 path = require("path");
 
-utility = require("./utility");
-
 store = require("./store");
+
+finder = require("findit");
+
+utility = require("./utility");
 
 print = function(m) {
   return console.dir(m);
@@ -19,6 +21,7 @@ Album = (function() {
     this.structSettings = {
       last_check: new Date(),
       image_root: "Photos",
+      trash_root: "Trash",
       tag_root: "Tags",
       format: "<year>/<month>/<day>"
     };
@@ -141,6 +144,19 @@ Album = (function() {
     }
   };
 
+  Album.prototype.remove = function(imagePath, callback) {
+    return fs.stat(imagePath, function(err, stats) {
+      var imageID;
+      if (err) {
+        return callback(err, null);
+      } else {
+        if (stats.nlink > 1) {
+          return imageID = stats.ino;
+        }
+      }
+    });
+  };
+
   return Album;
 
 })();
@@ -170,6 +186,10 @@ parser.addArgument(["-i"], {
 parser.addArgument(["-t"], {
   help: "Image to tag and tag name",
   nargs: 2
+});
+
+parser.addArgument(["-r"], {
+  help: "Remove a photo / image"
 });
 
 args = parser.parseArgs();
@@ -213,6 +233,18 @@ if (args.n) {
       return alb.tag(src, args.t[1], function(err, imgPath) {
         print(err);
         return print(imgPath);
+      });
+    }
+  });
+} else if (args.r) {
+  src = path.resolve(args.r);
+  alb.open(process.cwd(), function(err, albumPath) {
+    if (err) {
+      return print(err);
+    } else if (albumPath) {
+      return alb.remove(src, function(err, trashPath) {
+        print(err);
+        return print(trashPath);
       });
     }
   });

@@ -31,6 +31,60 @@ searchUp = (searchName, searchDir, callback)->
           callback null, checkFile
   moveUp 0
 
+print = (m)->
+  console.dir m
+
+# Search down for a file, decending into subfodlers
+# Callback (error, matches)
+searchDown = (searchName, searchDir, limit, callback)->
+  results = []
+  moveDown = (location, stop)->
+    if stop
+      fs.readdir location, (err, files)->
+        if err and err.code isnt "ENOTDIR"
+          callback err, null
+          print location
+        print err
+        for f in files
+          nextDir = path.join location, f
+          moveDown nextDir, stop - 1
+        print files
+      console.log location
+  moveDown searchDir, limit
+
+
+#
+# var walk = function(dir, done) {
+#   var results = [];
+#   fs.readdir(dir, function(err, list) {
+#     if (err) return done(err);
+#     var pending = list.length;
+#     if (!pending) return done(null, results);
+#     list.forEach(function(file) {
+#       file = path.resolve(dir, file);
+#       fs.stat(file, function(err, stat) {
+#         if (stat && stat.isDirectory()) {
+#           walk(file, function(err, res) {
+#             results = results.concat(res);
+#             if (!--pending) done(null, results);
+#           });
+#         } else {
+#           results.push(file);
+#           if (!--pending) done(null, results);
+#         }
+#       });
+#     });
+#   });
+# };
+#
+#
+#   
+#
+#
+# searchDown "thing", process.cwd(), 2, (err, matches)->
+#   print err
+#   print matches
+
 # Create path if it doesn't exist
 # Callback (error)
 mkdirs = (dirPath, callback)->
