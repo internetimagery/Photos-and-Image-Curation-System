@@ -66,7 +66,9 @@ parseDir = function(filePath, structure, callback) {
                 return dateTime.format("DD");
               case "dayname":
                 return dateTime.format("dddd");
-              case "hour":
+              case "12hour":
+                return dateTime.format("hha");
+              case "24hour":
                 return dateTime.format("HH");
               case "minute":
                 return dateTime.format("mm");

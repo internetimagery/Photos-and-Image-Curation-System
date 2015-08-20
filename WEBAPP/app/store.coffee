@@ -16,7 +16,8 @@ ExifImage = require "exif"
 # <monthname>
 # <day>
 # <dayname>
-# <hour>
+# <12hour>
+# <24hour>
 # <minute>
 # <second>
 # <millisecond>
@@ -62,7 +63,8 @@ parseDir = (filePath, structure, callback)->
             when "monthname" then dateTime.format("MMMM")
             when "day" then dateTime.format("DD")
             when "dayname" then dateTime.format("dddd")
-            when "hour" then dateTime.format("HH")
+            when "12hour" then dateTime.format("hha")
+            when "24hour" then dateTime.format("HH")
             when "minute" then dateTime.format("mm")
             when "second" then dateTime.format("ss")
             when "millisecond" then dateTime.format("SSS")
