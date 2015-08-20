@@ -16,7 +16,7 @@ app.on "ready", ()->
     height : 600
 
   # Load our first page
-  mainWindow.loadUrl "file://#{__dirname}/index.html"
+  mainWindow.loadUrl "file://#{__dirname}/gui/index.html"
 
   mainWindow.openDevTools() # I guess.... open development tools
 
