@@ -1,4 +1,4 @@
-var Menu, guiWindow, print,
+var GUI_Menu, GuiWindow, Menu, print,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -7,8 +7,8 @@ print = function(m) {
   return console.dir(m);
 };
 
-guiWindow = (function() {
-  function guiWindow(element) {
+GuiWindow = (function() {
+  function GuiWindow(element) {
     this.element = element;
     this.mousedown = __bind(this.mousedown, this);
     this.mouseup = __bind(this.mouseup, this);
@@ -19,11 +19,11 @@ guiWindow = (function() {
     this._dragCheck = false;
   }
 
-  guiWindow.prototype.mousemove = function(ev) {
+  GuiWindow.prototype.mousemove = function(ev) {
     return this._dragCheck = true;
   };
 
-  guiWindow.prototype.mouseup = function(ev) {
+  GuiWindow.prototype.mouseup = function(ev) {
     if (this._dragCheck) {
       return this.dragged(ev);
     } else {
@@ -31,19 +31,19 @@ guiWindow = (function() {
     }
   };
 
-  guiWindow.prototype.mousedown = function(ev) {
+  GuiWindow.prototype.mousedown = function(ev) {
     return this._dragCheck = false;
   };
 
-  guiWindow.prototype.clicked = function(ev) {
+  GuiWindow.prototype.clicked = function(ev) {
     return console.log("Clicked");
   };
 
-  guiWindow.prototype.dragged = function(ev) {
+  GuiWindow.prototype.dragged = function(ev) {
     return console.log("Dragged");
   };
 
-  return guiWindow;
+  return GuiWindow;
 
 })();
 
@@ -60,8 +60,6 @@ Menu = (function(_super) {
 
   return Menu;
 
-})(guiWindow);
+})(GuiWindow);
 
-this.GUI_Menu = new Menu(document.getElementById("menubar"));
-
-print(GUI_Menu.clicked);
+GUI_Menu = new Menu(document.getElementById("menubar"));
