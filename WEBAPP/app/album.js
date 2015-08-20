@@ -125,7 +125,19 @@ Album = (function() {
     if (this.root) {
       tagDir = path.join(this.root, this.structSettings.tag_root, tagName);
       tagPath = path.join(tagDir, path.basename(imagePath));
-      return console.log(tagPath);
+      return utility.mkdirs(tagDir, function(err) {
+        if (err) {
+          return callback(err, null);
+        } else {
+          return fs.link(imagePath, tagPath, function(err) {
+            if (err && err.code !== "EEXIST") {
+              return callback(err, null);
+            } else {
+              return callback(null, tagPath);
+            }
+          });
+        }
+      });
     }
   };
 

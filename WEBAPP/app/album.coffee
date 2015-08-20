@@ -82,8 +82,14 @@ class Album
     if @root
       tagDir = path.join @root, @structSettings.tag_root, tagName
       tagPath = path.join tagDir, path.basename imagePath
-      # utility.mkdirs tagDir
-      console.log tagPath
+      utility.mkdirs tagDir, (err)->
+        if err then callback err, null else
+          fs.link imagePath, tagPath, (err)->
+            if err and err.code isnt "EEXIST"
+              callback err, null
+            else
+              callback null, tagPath
+
 ArgParse = require "argparse/lib/argparse"
 .ArgumentParser
 
