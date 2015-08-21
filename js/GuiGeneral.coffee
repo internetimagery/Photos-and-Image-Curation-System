@@ -1,11 +1,34 @@
-# General GUI manipulation
+# General GUI classes
+
+# Animate things to look fancy
+class Animation
+  constructor : (@duration, @style)->
+    @framerate = 25 # fps
+  run : (callback)=>
+    step = 1 / @framerate / @duration
+    progress = 0
+    runFrame = ()=>
+      progress += step
+      callback @animStep progress
+      if progress > 1
+        clearInterval id
+    id = setInterval runFrame, 1000 / @framerate
+  animStep : (progress)->
+    switch @style
+      when "linear"
+        progress
+
+anim = new Animation 3, "linear"
+anim.run (step)->
+  console.log step
+
 
 # General Gui item
-class GuiElement
+class @GuiElement
   constructor : (@element)->
 
 # Gui with interraction enabled
-class GuiInterractive extends GuiElement
+class @GuiInterractive extends GuiElement
   constructor : (@element)->
     super @element
     @element.addEventListener "mouseleave", @_mouseleave
@@ -40,13 +63,5 @@ class GuiInterractive extends GuiElement
     @_mousePressed = false
     @_dragging = false
   dragging : (ev)->
-    console.log "Dragging"
   dropped : (ev)->
-    console.log "Dropped"
   clicked : (ev)->
-    console.log "Clicked"
-
-
-
-sidebarTrigger = document.getElementById "show-hide-sidebar"
-testing = new GuiInterractive sidebarTrigger

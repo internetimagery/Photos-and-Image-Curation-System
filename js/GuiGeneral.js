@@ -1,10 +1,51 @@
 (function() {
-  var GuiElement, GuiInterractive, sidebarTrigger, testing,
+  var Animation, anim,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  GuiElement = (function() {
+  Animation = (function() {
+    function Animation(duration, style) {
+      this.duration = duration;
+      this.style = style;
+      this.run = __bind(this.run, this);
+      this.framerate = 25;
+    }
+
+    Animation.prototype.run = function(callback) {
+      var id, progress, runFrame, step;
+      step = 1 / this.framerate / this.duration;
+      progress = 0;
+      runFrame = (function(_this) {
+        return function() {
+          progress += step;
+          callback(_this.animStep(progress));
+          if (progress > 1) {
+            return clearInterval(id);
+          }
+        };
+      })(this);
+      return id = setInterval(runFrame, 1000 / this.framerate);
+    };
+
+    Animation.prototype.animStep = function(progress) {
+      switch (this.style) {
+        case "linear":
+          return progress;
+      }
+    };
+
+    return Animation;
+
+  })();
+
+  anim = new Animation(3, "linear");
+
+  anim.run(function(step) {
+    return console.log(step);
+  });
+
+  this.GuiElement = (function() {
     function GuiElement(element) {
       this.element = element;
     }
@@ -13,7 +54,7 @@
 
   })();
 
-  GuiInterractive = (function(_super) {
+  this.GuiInterractive = (function(_super) {
     __extends(GuiInterractive, _super);
 
     function GuiInterractive(element) {
@@ -69,24 +110,14 @@
       return this._dragging = false;
     };
 
-    GuiInterractive.prototype.dragging = function(ev) {
-      return console.log("Dragging");
-    };
+    GuiInterractive.prototype.dragging = function(ev) {};
 
-    GuiInterractive.prototype.dropped = function(ev) {
-      return console.log("Dropped");
-    };
+    GuiInterractive.prototype.dropped = function(ev) {};
 
-    GuiInterractive.prototype.clicked = function(ev) {
-      return console.log("Clicked");
-    };
+    GuiInterractive.prototype.clicked = function(ev) {};
 
     return GuiInterractive;
 
   })(GuiElement);
-
-  sidebarTrigger = document.getElementById("show-hide-sidebar");
-
-  testing = new GuiInterractive(sidebarTrigger);
 
 }).call(this);
