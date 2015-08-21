@@ -1,0 +1,124 @@
+// out: main.css
+
+// Body
+#main-window
+  height: 100px
+
+mainpanel
+  position: fixed
+  top: 0px
+  bottom: 0px
+
+$divider-location: 200px
+// Side Bar
+#sidebar-wrapper
+  background-color: black
+  color: white
+  left: 0px
+  width: $divider-location
+
+// Main Window
+#main-wrapper
+  background-color: lightgrey
+  color: black
+  left: $divider-location
+  right: 0px
+
+.divider
+  height: 20px
+  background-color: white
+  border-bottom: solid black 1px
+
+#menubar-wrapper
+  background-color: pink
+
+#show-hide-sidebar
+
+// Import Buttons center screen
+$import-height: 50px
+$import-colour: grey
+#arrow
+  content: ""
+  display: inline-block
+  position: absolute
+  top: 0px
+  width: 0px
+  height: 0px
+  border-top: $import-height solid $import-colour
+#import-wrapper
+  position: relative
+  left: -50%
+  &::before
+    @extend #arrow
+    left: -20px
+    border-left: 20px solid transparent
+  &::after
+    @extend #arrow
+    right: -20px
+    border-right: 20px solid transparent
+  .import-button
+    height: $import-height
+    background-color: $import-colour
+    width: 80px
+    display: inline-block
+    text-align: center
+
+
+// #import-wrapper::before {
+//   content: "";
+//   display: inline-block;
+//   position: absolute;
+//   left: -20px;
+// 	width: 0px;
+//   height: 0px;
+//   border-top: 50px solid red;
+//   border-left: 20px solid transparent;
+// }
+// #import-wrapper::after {
+//   content: "";
+//   display: inline-block;
+//   position: absolute;
+//   right: -20px;
+// 	width: 0px;
+//   height: 0px;
+//   border-top: 50px solid red;
+//   border-right: 20px solid transparent;
+// }
+//
+// .import-button {
+//   height: 30px;
+//   width: 80px;
+//   display: inline-block;
+// }
+//
+// #import-file {
+//   background-color: blue;
+// }
+//
+// #import-camera {
+//   background-color: green;
+// }
+//
+// #navigation-wrapper {
+//   background-color: orange;
+//   float: left;
+// }
+//
+// #divider {
+//   background-color: grey;
+//   float: left;
+//   border-left: 3px solid black;
+//   border-right: 3px solid black;
+//   width: 30px;
+//   height: 50px;
+//   text-align: center;
+//   cursor: grab;
+// }
+//
+// #display-wrapper {
+//   background-color: blue;
+//   float: left;
+// }
+//
+//
+//

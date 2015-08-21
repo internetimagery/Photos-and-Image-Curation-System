@@ -17,7 +17,7 @@ app.on("ready", function() {
     width: 960,
     height: 600
   });
-  mainWindow.loadUrl("file://" + __dirname + "/gui/index.html");
+  mainWindow.loadUrl("file://" + __dirname + "/index.html");
   mainWindow.openDevTools();
   return mainWindow.on("closed", function() {
     return mainWindow = null;

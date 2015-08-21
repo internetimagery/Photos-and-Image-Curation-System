@@ -7,32 +7,49 @@
     <link rel="stylesheet" href="../node_modules/skeleton-css/css/skeleton.css"> -->
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" href="node_modules/normalize.css/normalize.css">
-    <link rel="stylesheet" href="gui/css/main.css">
+    <link rel="stylesheet" href="css/main.css">
   <body id="main-window">
-    <div id="menubar-wrapper">
-      <div id="show-hide-sidebar">
-        <i class="fa fa-exchange"></i>
-      </div>
+    <mainpanel id="sidebar-wrapper">
+      File related stuff here <br>
+      and more here <br>
+      more and more
+    </mainpanel>
+    <mainpanel id="main-wrapper">
+      <div class="divider"></div>
 
+      <div id="menubar-wrapper">
+        <div id="show-hide-sidebar">
+          <a href="#">
+            <i class="fa fa-bars fa-2x"></i>
+          </a>
+        </div>
+        <div style="position: absolute; left: 50%;">
+          <div id="import-wrapper">
+            <a href="#">
+              <div id="import-file" class="import-button">
+                <i class="fa fa-picture-o fa-2x"></i>
+              </div>
+            </a>
+            <a href="#">
+              <div id="import-camera" class="import-button">
+                <i class="fa fa-camera-retro fa-2x"></i>
+              </div>
+            </a>
+          </div>
+        </div>
       </div>
-      <ul>
-        <li class="menubar-item-root">
-          Item here
-        </li>
-      </ul>
+    </mainpanel>
+
+    <!-- <div id="navigation-wrapper">
+      NAVIGATION
     </div>
-    <div id="wrapper">
-      <div id="navigation-wrapper">
-        NAVIGATION
-      </div>
-      <div id="divider">
-        :
-      </div>
-      <div id="display-wrapper">
-        IMAGES
-      </div>
+    <div id="divider">
+      :
     </div>
+    <div id="display-wrapper">
+      IMAGES
+    </div> -->
     <!-- <script src="../bower_components/foundation/js/foundation.js"></script> -->
-  <script src="gui/js/GUIBaseClasses.js"></script>
+  <script src="js/GUIBaseClasses.js"></script>
   </body>
 </html>
