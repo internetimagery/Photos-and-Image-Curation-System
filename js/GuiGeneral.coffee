@@ -5,31 +5,22 @@ class Animation
   constructor : (@duration, @style)->
     @framerate = 25 # fps
     @strength = 1.5 # Strength of some animations
-  run : (callback)=>
+  run : (forward, callback)=>
     step = 1 / @framerate / @duration
-    progress = 0
+    progress = if forward then 0 else 1
     time = Date.now()
     frame = ()=>
       now = Date.now()
       step = 0.001 * (now - time) / @duration
       time = now
-      progress += step
-      if progress < 1
+      progress = if forward then progress + step else progress - step
+      if progress < 1 and progress > 0
         callback @animStep progress
         requestAnimationFrame frame
       else
-        callback 1
+        callback if forward then 1 else 0
     requestAnimationFrame frame
-
-    # runFrame = ()=>
-    #   progress += step
-    #   if progress > 1
-    #     clearInterval id
-    #     callback 1.0
-    #   else
-    #     callback @animStep progress
-    # id = setInterval runFrame, 1000 / @framerate
-  animStep : (progress)->
+  animStep : (progress)=>
     switch @style
       when "linear"
         progress
@@ -38,7 +29,7 @@ class Animation
       when "circ"
         1 - Math.sin Math.acos progress
       when "bow"
-        Math.pow progress, 2 * ((@strength + 1) * progress - @strength)
+        Math.pow(progress, 2) * ((@strength + 1) * progress - @strength)
       when "elastic"
         power = Math.pow 2, 10 * (progress - 1)
         power * Math.cos 20 * Math.PI * @strength / 3 * progress
@@ -47,8 +38,9 @@ class Animation
 
 elem = document.getElementById "show-hide-sidebar"
 anim = new Animation 1, "bow"
-anim.strength = 4
-anim.run (step)->
+anim.strength = 1.5
+anim.run false, (step)->
+  console.log step * 100
   elem.style.marginLeft = "#{step * 100}px"
 
 

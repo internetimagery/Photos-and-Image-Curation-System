@@ -8,15 +8,16 @@
     function Animation(duration, style) {
       this.duration = duration;
       this.style = style;
+      this.animStep = __bind(this.animStep, this);
       this.run = __bind(this.run, this);
       this.framerate = 25;
       this.strength = 1.5;
     }
 
-    Animation.prototype.run = function(callback) {
+    Animation.prototype.run = function(forward, callback) {
       var frame, progress, step, time;
       step = 1 / this.framerate / this.duration;
-      progress = 0;
+      progress = forward ? 0 : 1;
       time = Date.now();
       frame = (function(_this) {
         return function() {
@@ -24,12 +25,12 @@
           now = Date.now();
           step = 0.001 * (now - time) / _this.duration;
           time = now;
-          progress += step;
-          if (progress < 1) {
+          progress = forward ? progress + step : progress - step;
+          if (progress < 1 && progress > 0) {
             callback(_this.animStep(progress));
             return requestAnimationFrame(frame);
           } else {
-            return callback(1);
+            return callback(forward ? 1 : 0);
           }
         };
       })(this);
@@ -46,7 +47,7 @@
         case "circ":
           return 1 - Math.sin(Math.acos(progress));
         case "bow":
-          return Math.pow(progress, 2 * ((this.strength + 1) * progress - this.strength));
+          return Math.pow(progress, 2) * ((this.strength + 1) * progress - this.strength);
         case "elastic":
           power = Math.pow(2, 10 * (progress - 1));
           return power * Math.cos(20 * Math.PI * this.strength / 3 * progress);
@@ -61,9 +62,10 @@
 
   anim = new Animation(1, "bow");
 
-  anim.strength = 4;
+  anim.strength = 1.5;
 
-  anim.run(function(step) {
+  anim.run(false, function(step) {
+    console.log(step * 100);
     return elem.style.marginLeft = "" + (step * 100) + "px";
   });
 
