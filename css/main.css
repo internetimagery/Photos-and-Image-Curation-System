@@ -5,7 +5,7 @@
   background-color: lightgrey;
 }
 
-#menubar {
+#menubar-wrapper {
   background-color: pink;
   height: 50px;
   clear: both;

@@ -1,4 +1,4 @@
-var GlobalMouse, GuiElement, GuiMenu, GuiMouseEventCoordinator, print,
+var GuiElement, GuiMouseEventCoordinator, print,
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 print = function(m) {
@@ -49,8 +49,6 @@ GuiMouseEventCoordinator = (function() {
 
 })();
 
-GlobalMouse = new GuiMouseEventCoordinator(document.getElementById("main-window"));
-
 GuiElement = (function() {
   function GuiElement(element) {
     this.element = element;
@@ -74,5 +72,3 @@ GuiElement = (function() {
   return GuiElement;
 
 })();
-
-GuiMenu = new GuiElement(document.getElementById("menubar"));

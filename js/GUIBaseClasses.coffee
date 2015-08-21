@@ -27,7 +27,7 @@ class GuiMouseEventCoordinator
     if @_eventRegistry > -1
       console.log index
 
-GlobalMouse = new GuiMouseEventCoordinator document.getElementById "main-window"
+# GlobalMouse = new GuiMouseEventCoordinator document.getElementById "main-window"
 
 # A Gui Element
 class GuiElement
@@ -42,7 +42,7 @@ class GuiElement
     @registrar.remove @
     console.log "Left"
 
-GuiMenu = new GuiElement document.getElementById "menubar"
+# GuiMenu = new GuiElement document.getElementById "menubar"
 #
 #
 # # A GUI element
