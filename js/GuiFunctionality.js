@@ -7,36 +7,48 @@
   GuiSidebar = (function(_super) {
     __extends(GuiSidebar, _super);
 
-    function GuiSidebar(trigger, sidebarElm, overlayElm) {
+    function GuiSidebar(trigger, sidebarElement, overlayElement) {
       this.trigger = trigger;
-      this.sidebarElm = sidebarElm;
-      this.overlayElm = overlayElm;
+      this.sidebarElement = sidebarElement;
+      this.overlayElement = overlayElement;
       this.clicked = __bind(this.clicked, this);
       GuiSidebar.__super__.constructor.call(this, this.trigger);
       this.sidebar = true;
-      this.width = "200px";
+      this.width = "" + this.sidebarElement.offsetWidth + "px";
       this.animating = false;
-      this.animation = new Animation(2, "linear");
+      this.animation = new Animation(0.5, "overshoot");
     }
 
     GuiSidebar.prototype.clicked = function(ev) {
       if (!this.animating) {
         if (this.sidebar) {
-          console.log("Push sidebar in");
-          this.sidebar = false;
           this.animating = true;
           return this.animation.run(true, (function(_this) {
             return function(done, step) {
-              sidebarElement.style.width = "" + (parseInt(step.x * 200)) + ".px";
+              var placement;
+              placement = "" + (parseInt(step.x * 200)) + "px";
+              _this.sidebarElement.style.width = placement;
+              _this.overlayElement.style.left = placement;
               if (done) {
                 _this.animating = false;
-                return console.log("done");
+                return _this.sidebar = false;
               }
             };
           })(this));
         } else {
-          console.log("Pull sidebar out");
-          return this.sidebar = true;
+          this.animating = true;
+          return this.animation.run(false, (function(_this) {
+            return function(done, step) {
+              var placement;
+              placement = "" + (parseInt(step.x * 200)) + "px";
+              _this.sidebarElement.style.width = placement;
+              _this.overlayElement.style.left = placement;
+              if (done) {
+                _this.animating = false;
+                return _this.sidebar = true;
+              }
+            };
+          })(this));
         }
       }
     };

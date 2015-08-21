@@ -2,28 +2,34 @@
 
 # Sidebar
 class GuiSidebar extends GuiInterractive
-  constructor : (@trigger, @sidebarElm, @overlayElm)->
+  constructor : (@trigger, @sidebarElement, @overlayElement)->
     super @trigger
     @sidebar = true
-    @width = "200px"
+    @width = "#{@sidebarElement.offsetWidth}px"
     @animating = false
-    @animation = new Animation 2, "linear"
+    @animation = new Animation 0.5, "overshoot"
   clicked : (ev)=>
     # Toggle sidebar
     if not @animating
       if @sidebar
-        console.log "Push sidebar in"
-        @sidebar = false
         @animating = true
         @animation.run true, (done, step)=>
-          # console.log step.x
-          sidebarElement.style.width = "#{parseInt step.x * 200}.px"
+          placement = "#{parseInt step.x * 200}px"
+          @sidebarElement.style.width = placement
+          @overlayElement.style.left = placement
           if done
             @animating = false
-            console.log "done"
+            @sidebar = false
       else
-        console.log "Pull sidebar out"
-        @sidebar = true
+        @animating = true
+        @animation.run false, (done, step)=>
+          placement = "#{parseInt step.x * 200}px"
+          @sidebarElement.style.width = placement
+          @overlayElement.style.left = placement
+          if done
+            @animating = false
+            @sidebar = true
+
 
 sidebarTrigger = document.getElementById "show-hide-sidebar"
 sidebarElement = document.getElementById "sidebar-wrapper"

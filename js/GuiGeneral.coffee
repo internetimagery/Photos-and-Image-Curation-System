@@ -1,6 +1,8 @@
 # General GUI classes
 
 # Bezier Curve
+# pt1 x/y = control point from base
+# pt2 x/y = control point from end
 class Bezier
   constructor : (pt1_x, pt1_y, pt2_x, pt2_y)->
     @src = x: 0, y: 0 # Start of Curve
@@ -78,15 +80,6 @@ class @Animation
       when "elastic"
         power = Math.pow 2, 10 * (progress - 1)
         power * Math.cos 20 * Math.PI * @strength / 3 * progress
-
-# Testing
-# elem = document.getElementById "show-hide-sidebar"
-# anim = new Animation 0.5, "overshoot", -0.25, -0.1, 1, 1
-# anim.run false, (step)->
-#   console.log "X: #{step.x}, Y: #{step.y}"
-#   elem.style.marginLeft = "#{step.x * 100}px"
-#   elem.style.marginTop = "#{step.y * 100}px"
-
 
 # General Gui item
 class @GuiElement
