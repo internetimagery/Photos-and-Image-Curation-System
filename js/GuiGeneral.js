@@ -1,5 +1,5 @@
 (function() {
-  var Animation, anim,
+  var Animation, anim, elem,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -10,32 +10,46 @@
       this.style = style;
       this.run = __bind(this.run, this);
       this.framerate = 25;
+      this.strength = 1.5;
     }
 
     Animation.prototype.run = function(callback) {
-      var id, progress, runFrame, step;
+      var frame, progress, step, time;
       step = 1 / this.framerate / this.duration;
       progress = 0;
-      runFrame = (function(_this) {
+      time = Date.now();
+      frame = (function(_this) {
         return function() {
+          var now;
+          now = Date.now();
+          step = 0.001 * (now - time) / _this.duration;
+          time = now;
           progress += step;
-          if (progress > 1) {
-            clearInterval(id);
-            return callback(1.0);
+          if (progress < 1) {
+            callback(_this.animStep(progress));
+            return requestAnimationFrame(frame);
           } else {
-            return callback(_this.animStep(progress));
+            return callback(1);
           }
         };
       })(this);
-      return id = setInterval(runFrame, 1000 / this.framerate);
+      return requestAnimationFrame(frame);
     };
 
     Animation.prototype.animStep = function(progress) {
+      var power;
       switch (this.style) {
         case "linear":
           return progress;
         case "quad":
-          return Math.pow(progress, 2);
+          return Math.pow(progress, this.strength);
+        case "circ":
+          return 1 - Math.sin(Math.acos(progress));
+        case "bow":
+          return Math.pow(progress, 2 * ((this.strength + 1) * progress - this.strength));
+        case "elastic":
+          power = Math.pow(2, 10 * (progress - 1));
+          return power * Math.cos(20 * Math.PI * this.strength / 3 * progress);
       }
     };
 
@@ -43,10 +57,14 @@
 
   })();
 
-  anim = new Animation(3, "quad");
+  elem = document.getElementById("show-hide-sidebar");
+
+  anim = new Animation(1, "bow");
+
+  anim.strength = 4;
 
   anim.run(function(step) {
-    return console.log(step);
+    return elem.style.marginLeft = "" + (step * 100) + "px";
   });
 
   this.GuiElement = (function() {

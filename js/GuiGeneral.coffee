@@ -4,27 +4,52 @@
 class Animation
   constructor : (@duration, @style)->
     @framerate = 25 # fps
+    @strength = 1.5 # Strength of some animations
   run : (callback)=>
     step = 1 / @framerate / @duration
     progress = 0
-    runFrame = ()=>
+    time = Date.now()
+    frame = ()=>
+      now = Date.now()
+      step = 0.001 * (now - time) / @duration
+      time = now
       progress += step
-      if progress > 1
-        clearInterval id
-        callback 1.0
-      else
+      if progress < 1
         callback @animStep progress
-    id = setInterval runFrame, 1000 / @framerate
+        requestAnimationFrame frame
+      else
+        callback 1
+    requestAnimationFrame frame
+
+    # runFrame = ()=>
+    #   progress += step
+    #   if progress > 1
+    #     clearInterval id
+    #     callback 1.0
+    #   else
+    #     callback @animStep progress
+    # id = setInterval runFrame, 1000 / @framerate
   animStep : (progress)->
     switch @style
       when "linear"
         progress
       when "quad"
-        Math.pow progress, 2
+        Math.pow progress, @strength
+      when "circ"
+        1 - Math.sin Math.acos progress
+      when "bow"
+        Math.pow progress, 2 * ((@strength + 1) * progress - @strength)
+      when "elastic"
+        power = Math.pow 2, 10 * (progress - 1)
+        power * Math.cos 20 * Math.PI * @strength / 3 * progress
+      # when "bounce"
 
-anim = new Animation 3, "quad"
+
+elem = document.getElementById "show-hide-sidebar"
+anim = new Animation 1, "bow"
+anim.strength = 4
 anim.run (step)->
-  console.log step
+  elem.style.marginLeft = "#{step * 100}px"
 
 
 # General Gui item
