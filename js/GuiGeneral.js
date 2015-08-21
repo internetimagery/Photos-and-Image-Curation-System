@@ -1,8 +1,69 @@
 (function() {
-  var Animation, anim, elem,
+  var Animation, Bezier, anim, curve, elem,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Bezier = (function() {
+    function Bezier(pt1_x, pt1_y, pt2_x, pt2_y) {
+      this.plot = __bind(this.plot, this);
+      this.src = {
+        x: 0,
+        y: 0
+      };
+      this.dest = {
+        x: 1,
+        y: 1
+      };
+      this.ctrl1 = {
+        x: pt1_x,
+        y: pt1_y
+      };
+      this.ctrl2 = {
+        x: pt2_x,
+        y: pt2_y
+      };
+      this.position = {
+        x: 0,
+        y: 0
+      };
+    }
+
+    Bezier.prototype.plot = function(point) {
+      var x1, x2, x3, x4, y1, y2, y3, y4;
+      x1 = this.src.x * this._b1(point);
+      x2 = this.ctrl1.x * this._b2(point);
+      x3 = this.ctrl2.x * this._b3(point);
+      x4 = this.dest.x * this._b4(point);
+      y1 = this.src.y * this._b1(point);
+      y2 = this.ctrl1.y * this._b2(point);
+      y3 = this.ctrl2.y * this._b3(point);
+      y4 = this.dest.y * this._b4(point);
+      return {
+        x: x1 + x2 + x3 + x4,
+        y: y1 + y2 + y3 + y4
+      };
+    };
+
+    Bezier.prototype._b1 = function(t) {
+      return t * t * t;
+    };
+
+    Bezier.prototype._b2 = function(t) {
+      return 3 * t * t * (1 - t);
+    };
+
+    Bezier.prototype._b3 = function(t) {
+      return 3 * t * (1 - t) * (1 - t);
+    };
+
+    Bezier.prototype._b4 = function(t) {
+      return (1 - t) * (1 - t) * (1 - t);
+    };
+
+    return Bezier;
+
+  })();
 
   Animation = (function() {
     function Animation(duration, style) {
@@ -60,13 +121,18 @@
 
   elem = document.getElementById("show-hide-sidebar");
 
-  anim = new Animation(1, "bow");
+  anim = new Animation(2, "linear");
 
   anim.strength = 1.5;
 
-  anim.run(false, function(step) {
-    console.log(step * 100);
-    return elem.style.marginLeft = "" + (step * 100) + "px";
+  curve = new Bezier(0.25, 0.25, 0.75, 0.75);
+
+  anim.run(true, function(step) {
+    var p;
+    p = curve.plot(step);
+    console.log("X: " + p.x + ", Y: " + p.y);
+    elem.style.marginLeft = "" + (p.x * 100) + "px";
+    return elem.style.marginTop = "" + (p.y * 100) + "px";
   });
 
   this.GuiElement = (function() {

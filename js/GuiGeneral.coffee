@@ -1,5 +1,33 @@
 # General GUI classes
 
+# Bezier Curve
+class Bezier
+  constructor : (pt1_x, pt1_y, pt2_x, pt2_y)->
+    @src = x: 0, y: 0 # Start of Curve
+    @dest = x: 1, y: 1 # End of Curve
+    @ctrl1 = x: pt1_x, y: pt1_y # Sources' control point
+    @ctrl2 = x: pt2_x, y: pt2_y # Destinations' control point
+    @position = x: 0, y: 0
+  plot : (point)=> # Point is between 0 and 1
+    x1 = @src.x * @_b1 point
+    x2 = @ctrl1.x * @_b2 point
+    x3 = @ctrl2.x * @_b3 point
+    x4 = @dest.x * @_b4 point
+    y1 = @src.y * @_b1 point
+    y2 = @ctrl1.y * @_b2 point
+    y3 = @ctrl2.y * @_b3 point
+    y4 = @dest.y * @_b4 point
+    x: x1 + x2 + x3 + x4
+    y: y1 + y2 + y3 + y4
+  _b1: (t)->
+    t * t * t
+  _b2: (t)->
+    3 * t * t * (1 - t)
+  _b3: (t)->
+    3 * t * (1 - t) * (1 - t)
+  _b4: (t)->
+    (1 - t) * (1 - t) * (1 - t)
+
 # Animate things to look fancy
 class Animation
   constructor : (@duration, @style)->
@@ -36,12 +64,18 @@ class Animation
       # when "bounce"
 
 
+
 elem = document.getElementById "show-hide-sidebar"
-anim = new Animation 1, "bow"
+anim = new Animation 2, "linear"
 anim.strength = 1.5
-anim.run false, (step)->
-  console.log step * 100
-  elem.style.marginLeft = "#{step * 100}px"
+curve = new Bezier 0.25, 0.25, 0.75, 0.75
+anim.run true, (step)->
+  p = curve.plot step
+  console.log "X: #{p.x}, Y: #{p.y}"
+  elem.style.marginLeft = "#{p.x * 100}px"
+  elem.style.marginTop = "#{p.y * 100}px"
+
+  # elem.style.marginLeft = "#{step * 100}px"
 
 
 # General Gui item
