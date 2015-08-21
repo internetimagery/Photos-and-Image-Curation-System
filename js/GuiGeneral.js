@@ -1,6 +1,7 @@
 (function() {
-  var Animation, Bezier, anim, curve, elem,
+  var Animation, Bezier, anim, elem,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -66,13 +67,23 @@
   })();
 
   Animation = (function() {
-    function Animation(duration, style) {
+    function Animation() {
+      var duration, pt, style;
+      duration = arguments[0], style = arguments[1], pt = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
       this.duration = duration;
-      this.style = style;
       this.animStep = __bind(this.animStep, this);
       this.run = __bind(this.run, this);
       this.framerate = 25;
       this.strength = 1.5;
+      this.acceleration = "linear";
+      this.curve = (function() {
+        switch (style) {
+          case "linear":
+            return new Bezier(0.25, 0.25, 0.75, 0.75);
+          case "custom":
+            return new Bezier(pt[0], pt[1], pt[2], pt[3]);
+        }
+      })();
     }
 
     Animation.prototype.run = function(forward, callback) {
@@ -88,10 +99,10 @@
           time = now;
           progress = forward ? progress + step : progress - step;
           if (progress < 1 && progress > 0) {
-            callback(_this.animStep(progress));
+            callback(_this.curve.plot(_this.animStep(progress)));
             return requestAnimationFrame(frame);
           } else {
-            return callback(forward ? 1 : 0);
+            return callback(_this.curve.plot(forward ? 1 : 0));
           }
         };
       })(this);
@@ -100,7 +111,7 @@
 
     Animation.prototype.animStep = function(progress) {
       var power;
-      switch (this.style) {
+      switch (this.acceleration) {
         case "linear":
           return progress;
         case "quad":
@@ -123,16 +134,10 @@
 
   anim = new Animation(2, "linear");
 
-  anim.strength = 1.5;
-
-  curve = new Bezier(0.25, 0.25, 0.75, 0.75);
-
   anim.run(true, function(step) {
-    var p;
-    p = curve.plot(step);
-    console.log("X: " + p.x + ", Y: " + p.y);
-    elem.style.marginLeft = "" + (p.x * 100) + "px";
-    return elem.style.marginTop = "" + (p.y * 100) + "px";
+    console.log("X: " + step.x + ", Y: " + step.y);
+    elem.style.marginLeft = "" + (step.x * 100) + "px";
+    return elem.style.marginTop = "" + (step.y * 100) + "px";
   });
 
   this.GuiElement = (function() {

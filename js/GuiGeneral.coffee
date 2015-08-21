@@ -30,9 +30,15 @@ class Bezier
 
 # Animate things to look fancy
 class Animation
-  constructor : (@duration, @style)->
+  constructor : (@duration, style, pt...)->
     @framerate = 25 # fps
-    @strength = 1.5 # Strength of some animations
+    @strength = 1.5 # Strength of some acceleration options
+    @acceleration = "linear"
+    @curve = switch style
+      when "linear"
+        new Bezier 0.25, 0.25, 0.75, 0.75
+      when "custom"
+        new Bezier pt[0], pt[1], pt[2], pt[3]
   run : (forward, callback)=>
     step = 1 / @framerate / @duration
     progress = if forward then 0 else 1
@@ -43,13 +49,13 @@ class Animation
       time = now
       progress = if forward then progress + step else progress - step
       if progress < 1 and progress > 0
-        callback @animStep progress
+        callback @curve.plot @animStep progress
         requestAnimationFrame frame
       else
-        callback if forward then 1 else 0
+        callback @curve.plot if forward then 1 else 0
     requestAnimationFrame frame
   animStep : (progress)=>
-    switch @style
+    switch @acceleration
       when "linear"
         progress
       when "quad"
@@ -64,16 +70,12 @@ class Animation
       # when "bounce"
 
 
-
 elem = document.getElementById "show-hide-sidebar"
 anim = new Animation 2, "linear"
-anim.strength = 1.5
-curve = new Bezier 0.25, 0.25, 0.75, 0.75
 anim.run true, (step)->
-  p = curve.plot step
-  console.log "X: #{p.x}, Y: #{p.y}"
-  elem.style.marginLeft = "#{p.x * 100}px"
-  elem.style.marginTop = "#{p.y * 100}px"
+  console.log "X: #{step.x}, Y: #{step.y}"
+  elem.style.marginLeft = "#{step.x * 100}px"
+  elem.style.marginTop = "#{step.y * 100}px"
 
   # elem.style.marginLeft = "#{step * 100}px"
 
