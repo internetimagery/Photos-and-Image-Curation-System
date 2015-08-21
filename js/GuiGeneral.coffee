@@ -29,7 +29,7 @@ class Bezier
     (1 - t) * (1 - t) * (1 - t)
 
 # Animate things to look fancy
-class Animation
+class @Animation
   constructor : (@duration, style, pt...)->
     @framerate = 25 # fps
     @strength = 1.5 # Strength of some acceleration options
@@ -37,6 +37,10 @@ class Animation
     @curve = switch style
       when "linear"
         new Bezier 0.25, 0.25, 0.75, 0.75
+      when "overshoot"
+        new Bezier 1.4, 1.6, 1, 1
+      when "smooth"
+        new Bezier 1, 0, 1, 0
       when "custom"
         new Bezier pt[0], pt[1], pt[2], pt[3]
   run : (forward, callback)=>
@@ -67,17 +71,14 @@ class Animation
       when "elastic"
         power = Math.pow 2, 10 * (progress - 1)
         power * Math.cos 20 * Math.PI * @strength / 3 * progress
-      # when "bounce"
 
-
-elem = document.getElementById "show-hide-sidebar"
-anim = new Animation 2, "linear"
-anim.run true, (step)->
-  console.log "X: #{step.x}, Y: #{step.y}"
-  elem.style.marginLeft = "#{step.x * 100}px"
-  elem.style.marginTop = "#{step.y * 100}px"
-
-  # elem.style.marginLeft = "#{step * 100}px"
+# Testing
+# elem = document.getElementById "show-hide-sidebar"
+# anim = new Animation 0.5, "overshoot", -0.25, -0.1, 1, 1
+# anim.run false, (step)->
+#   console.log "X: #{step.x}, Y: #{step.y}"
+#   elem.style.marginLeft = "#{step.x * 100}px"
+#   elem.style.marginTop = "#{step.y * 100}px"
 
 
 # General Gui item

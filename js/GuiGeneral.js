@@ -1,5 +1,5 @@
 (function() {
-  var Animation, Bezier, anim, elem,
+  var Bezier,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __slice = [].slice,
     __hasProp = {}.hasOwnProperty,
@@ -66,7 +66,7 @@
 
   })();
 
-  Animation = (function() {
+  this.Animation = (function() {
     function Animation() {
       var duration, pt, style;
       duration = arguments[0], style = arguments[1], pt = 3 <= arguments.length ? __slice.call(arguments, 2) : [];
@@ -80,6 +80,10 @@
         switch (style) {
           case "linear":
             return new Bezier(0.25, 0.25, 0.75, 0.75);
+          case "overshoot":
+            return new Bezier(1.4, 1.6, 1, 1);
+          case "smooth":
+            return new Bezier(1, 0, 1, 0);
           case "custom":
             return new Bezier(pt[0], pt[1], pt[2], pt[3]);
         }
@@ -129,16 +133,6 @@
     return Animation;
 
   })();
-
-  elem = document.getElementById("show-hide-sidebar");
-
-  anim = new Animation(2, "linear");
-
-  anim.run(true, function(step) {
-    console.log("X: " + step.x + ", Y: " + step.y);
-    elem.style.marginLeft = "" + (step.x * 100) + "px";
-    return elem.style.marginTop = "" + (step.y * 100) + "px";
-  });
 
   this.GuiElement = (function() {
     function GuiElement(element) {
