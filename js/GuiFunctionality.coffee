@@ -5,7 +5,7 @@ class GuiSidebar extends GuiInterractive
   constructor : (@trigger, @sidebarElement, @overlayElement)->
     super @trigger
     @sidebar = true
-    @width = "#{@sidebarElement.offsetWidth}px"
+    @width = @sidebarElement.offsetWidth
     @animating = false
     @animation = new Animation 0.5, "overshoot"
   clicked : (ev)=>
@@ -14,7 +14,7 @@ class GuiSidebar extends GuiInterractive
       if @sidebar
         @animating = true
         @animation.run true, (done, step)=>
-          placement = "#{parseInt step.x * 200}px"
+          placement = "#{parseInt step.x * @width}px"
           @sidebarElement.style.width = placement
           @overlayElement.style.left = placement
           if done
@@ -23,7 +23,7 @@ class GuiSidebar extends GuiInterractive
       else
         @animating = true
         @animation.run false, (done, step)=>
-          placement = "#{parseInt step.x * 200}px"
+          placement = "#{parseInt step.x * @width}px"
           @sidebarElement.style.width = placement
           @overlayElement.style.left = placement
           if done

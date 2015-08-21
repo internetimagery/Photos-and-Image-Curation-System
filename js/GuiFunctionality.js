@@ -14,7 +14,7 @@
       this.clicked = __bind(this.clicked, this);
       GuiSidebar.__super__.constructor.call(this, this.trigger);
       this.sidebar = true;
-      this.width = "" + this.sidebarElement.offsetWidth + "px";
+      this.width = this.sidebarElement.offsetWidth;
       this.animating = false;
       this.animation = new Animation(0.5, "overshoot");
     }
@@ -26,7 +26,7 @@
           return this.animation.run(true, (function(_this) {
             return function(done, step) {
               var placement;
-              placement = "" + (parseInt(step.x * 200)) + "px";
+              placement = "" + (parseInt(step.x * _this.width)) + "px";
               _this.sidebarElement.style.width = placement;
               _this.overlayElement.style.left = placement;
               if (done) {
@@ -40,7 +40,7 @@
           return this.animation.run(false, (function(_this) {
             return function(done, step) {
               var placement;
-              placement = "" + (parseInt(step.x * 200)) + "px";
+              placement = "" + (parseInt(step.x * _this.width)) + "px";
               _this.sidebarElement.style.width = placement;
               _this.overlayElement.style.left = placement;
               if (done) {
