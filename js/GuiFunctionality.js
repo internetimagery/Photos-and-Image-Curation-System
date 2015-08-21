@@ -7,22 +7,33 @@
   GuiSidebar = (function(_super) {
     __extends(GuiSidebar, _super);
 
-    function GuiSidebar(trigger, sidebarElement, overlayElement) {
+    function GuiSidebar(trigger, sidebarElm, overlayElm) {
       this.trigger = trigger;
-      this.sidebarElement = sidebarElement;
-      this.overlayElement = overlayElement;
+      this.sidebarElm = sidebarElm;
+      this.overlayElm = overlayElm;
       this.clicked = __bind(this.clicked, this);
       GuiSidebar.__super__.constructor.call(this, this.trigger);
       this.sidebar = true;
       this.width = "200px";
       this.animating = false;
+      this.animation = new Animation(2, "linear");
     }
 
     GuiSidebar.prototype.clicked = function(ev) {
       if (!this.animating) {
         if (this.sidebar) {
           console.log("Push sidebar in");
-          return this.sidebar = false;
+          this.sidebar = false;
+          this.animating = true;
+          return this.animation.run(true, (function(_this) {
+            return function(done, step) {
+              sidebarElement.style.width = "" + (parseInt(step.x * 200)) + ".px";
+              if (done) {
+                _this.animating = false;
+                return console.log("done");
+              }
+            };
+          })(this));
         } else {
           console.log("Pull sidebar out");
           return this.sidebar = true;

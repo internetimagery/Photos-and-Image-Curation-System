@@ -29,9 +29,10 @@ class Bezier
     (1 - t) * (1 - t) * (1 - t)
 
 # Animate things to look fancy
+# run Callback (done, step)
 class @Animation
   constructor : (@duration, style, pt...)->
-    @framerate = 25 # fps
+    @framerate = 24 # Framerate
     @strength = 1.5 # Strength of some acceleration options
     @acceleration = "linear"
     @curve = switch style
@@ -44,20 +45,26 @@ class @Animation
       when "custom"
         new Bezier pt[0], pt[1], pt[2], pt[3]
   run : (forward, callback)=>
-    step = 1 / @framerate / @duration
     progress = if forward then 0 else 1
     time = Date.now()
+    fps = 1000 / @framerate
     frame = ()=>
       now = Date.now()
-      step = 0.001 * (now - time) / @duration
-      time = now
-      progress = if forward then progress + step else progress - step
-      if progress < 1 and progress > 0
-        callback @curve.plot @animStep progress
-        requestAnimationFrame frame
-      else
-        callback @curve.plot if forward then 1 else 0
-    requestAnimationFrame frame
+      elapsed = now - time
+      if elapsed > fps then elapsed = fps
+      setTimeout ()=>
+        now = Date.now()
+        elapsed = now - time
+        time = now
+        step = 0.001 * elapsed / @duration
+        progress = if forward then progress + step else progress - step
+        if progress < 1 and progress > 0
+          callback false, @curve.plot @animStep progress
+          window.requestAnimationFrame frame
+        else
+          callback true, @curve.plot if forward then 1 else 0
+      , fps - elapsed
+    window.requestAnimationFrame frame
   animStep : (progress)=>
     switch @acceleration
       when "linear"

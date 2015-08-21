@@ -73,7 +73,7 @@
       this.duration = duration;
       this.animStep = __bind(this.animStep, this);
       this.run = __bind(this.run, this);
-      this.framerate = 25;
+      this.framerate = 24;
       this.strength = 1.5;
       this.acceleration = "linear";
       this.curve = (function() {
@@ -91,26 +91,35 @@
     }
 
     Animation.prototype.run = function(forward, callback) {
-      var frame, progress, step, time;
-      step = 1 / this.framerate / this.duration;
+      var fps, frame, progress, time;
       progress = forward ? 0 : 1;
       time = Date.now();
+      fps = 1000 / this.framerate;
       frame = (function(_this) {
         return function() {
-          var now;
+          var elapsed, now;
           now = Date.now();
-          step = 0.001 * (now - time) / _this.duration;
-          time = now;
-          progress = forward ? progress + step : progress - step;
-          if (progress < 1 && progress > 0) {
-            callback(_this.curve.plot(_this.animStep(progress)));
-            return requestAnimationFrame(frame);
-          } else {
-            return callback(_this.curve.plot(forward ? 1 : 0));
+          elapsed = now - time;
+          if (elapsed > fps) {
+            elapsed = fps;
           }
+          return setTimeout(function() {
+            var step;
+            now = Date.now();
+            elapsed = now - time;
+            time = now;
+            step = 0.001 * elapsed / _this.duration;
+            progress = forward ? progress + step : progress - step;
+            if (progress < 1 && progress > 0) {
+              callback(false, _this.curve.plot(_this.animStep(progress)));
+              return window.requestAnimationFrame(frame);
+            } else {
+              return callback(true, _this.curve.plot(forward ? 1 : 0));
+            }
+          }, fps - elapsed);
         };
       })(this);
-      return requestAnimationFrame(frame);
+      return window.requestAnimationFrame(frame);
     };
 
     Animation.prototype.animStep = function(progress) {
