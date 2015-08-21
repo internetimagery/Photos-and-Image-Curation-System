@@ -9,16 +9,20 @@ class Animation
     progress = 0
     runFrame = ()=>
       progress += step
-      callback @animStep progress
       if progress > 1
         clearInterval id
+        callback 1.0
+      else
+        callback @animStep progress
     id = setInterval runFrame, 1000 / @framerate
   animStep : (progress)->
     switch @style
       when "linear"
         progress
+      when "quad"
+        Math.pow progress, 2
 
-anim = new Animation 3, "linear"
+anim = new Animation 3, "quad"
 anim.run (step)->
   console.log step
 

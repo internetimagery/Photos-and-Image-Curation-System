@@ -19,9 +19,11 @@
       runFrame = (function(_this) {
         return function() {
           progress += step;
-          callback(_this.animStep(progress));
           if (progress > 1) {
-            return clearInterval(id);
+            clearInterval(id);
+            return callback(1.0);
+          } else {
+            return callback(_this.animStep(progress));
           }
         };
       })(this);
@@ -32,6 +34,8 @@
       switch (this.style) {
         case "linear":
           return progress;
+        case "quad":
+          return Math.pow(progress, 2);
       }
     };
 
@@ -39,7 +43,7 @@
 
   })();
 
-  anim = new Animation(3, "linear");
+  anim = new Animation(3, "quad");
 
   anim.run(function(step) {
     return console.log(step);
