@@ -16,6 +16,7 @@
   "dependencies": {
     "exif": "^0.4.0",
     "findit": "^2.0.0",
+    "font-awesome": "^4.4.0",
     "moment": "^2.10.6",
     "normalize.css": "^3.0.3",
     "skeleton-css": "^2.0.4",
