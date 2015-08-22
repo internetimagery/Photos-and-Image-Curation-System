@@ -1,5 +1,18 @@
 // out: main.css
 
+// Colour Swatch
+
+// Light Blue
+$colour1: #82A5B4
+// Blue
+$colour2: #43709C
+// Black
+$colour3: #232323
+// Grey
+$colour4: #B6C8C8
+// Light Grey
+$colour5: #C2D3D1
+
 // Body
 #main-window
   height: 100px
@@ -17,28 +30,34 @@ button
 $divider-size: 300px
 // Side Bar
 #sidebar-wrapper
-  background-color: black
-  color: white
+  background-color: $colour2
+  color: $colour5
   left: 0px
   width: $divider-size
   overflow: hidden
 
 // Main Window
 #main-wrapper
-  background-color: lightgrey
+  background-color: $colour3
+  background-image: url("../img/slash_it/slash_it.png")
   color: black
   left: $divider-size
   right: 0px
-  border: solid white 3px
+  border: solid $colour5 3px
+  box-shadow: inset 0px 0px 50px black
 
 #show-hide-sidebar
-  background-color: white
+  background-color: $colour5
+  color: $colour3
   display: inline-block
   padding: 10px
   border-bottom-right-radius: 10px
+  border-bottom: solid black 1px
+  border-right: solid rgba(255, 255, 255, 0.5) 1px
   position: absolute
   top: 0px
   left: 0px
+  text-shadow: 0px 1px 0px white
   &::before
     content: ""
     display: block
@@ -63,11 +82,13 @@ $import-height: 50px
 #import-file
   height: $import-height
   width: $import-height
-  background-color: grey
+  background-color: $colour2
   display: inline-block
   position: relative
   overflow: hidden
   border-radius: 10px
+  color: $colour3
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5)
   &::before
     content: ""
     display: inline-block
