@@ -29,24 +29,76 @@ button
   border: none
 
 
-$divider-size: 300px
 // Side Bar
+$divider-width: 300px
+$button-height: 50px
+$button-width: 50px
 #sidebar-wrapper
   background-color: $colour3
   // background-image: url("../img/white_leather/white_leather.png")
   color: $black
   left: 0px
-  width: $divider-size
+  width: $divider-width
   overflow: hidden
+  info
+    display: block
+    background-color: $colour1
+    text-align: center
+    padding: 5px
+    font-weight: bold
+    margin-bottom: 5px
+  buttonbar
+    text-align: center
+    display: block
+    margin-bottom: 5px
+    cursor: default
+    button
+      text-align: center
+      height: $button-height
+      width: $button-width
+      background-color: $colour1
+      display: inline-block
+      position: relative
+      overflow: hidden
+      border-radius: 10px
+      color: $black
+      text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.1)
+      border-bottom: solid $black 1px
+      &::before
+        content: ""
+        display: inline-block
+        position: absolute
+        top: 0px
+        left: 0px
+        width: 0px
+        height: 0px
+        border-top: $button-height solid rgba(255, 255, 255, 0.2)
+        border-left: $button-height solid transparent
+        border-right: none
+      &.inactive
+        background-color: $colour4
+        color: $colour2
+        cursor: default
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Main Window
 #main-wrapper
   background-color: $black
   background-image: url("../img/slash_it/slash_it.png")
   color: $black
-  left: $divider-size
+  left: $divider-width
   right: 0px
-  border-left: dashed $colour2 1px
   box-shadow: inset 0px 0px 50px black
 
 #show-hide-sidebar
@@ -78,39 +130,9 @@ $divider-size: 300px
 #menubar-wrapper
   background-color: pink
 
-
-// Import Buttons center screen
-$import-height: 50px
-#import-wrapper
-  text-align: center
-#import-file
-  height: $import-height
-  width: $import-height
-  background-color: $colour1
-  display: inline-block
-  position: relative
-  overflow: hidden
-  border-radius: 10px
-  color: $black
-  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5)
-  border-bottom: solid $black 1px
-  &::before
-    content: ""
-    display: inline-block
-    position: absolute
-    top: 0px
-    left: 0px
-    width: 0px
-    height: 0px
-    border-top: $import-height solid rgba(255, 255, 255, 0.2)
-    border-left: $import-height solid transparent
-    border-right: none
-#import-camera
-  @extend #import-file
-
-
 // Popup dialog Stuff
 screenshade
+  visibility: hidden
   display: block
   position: fixed
   top: 0px
