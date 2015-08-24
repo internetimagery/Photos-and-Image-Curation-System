@@ -17,6 +17,7 @@
     "exif-makernote-fix": "^0.1.0",
     "findit": "^2.0.0",
     "font-awesome": "^4.4.0",
+    "graceful-fs": "^4.1.2",
     "moment": "^2.10.6",
     "normalize.css": "^3.0.3",
     "skeleton-css": "^2.0.4",

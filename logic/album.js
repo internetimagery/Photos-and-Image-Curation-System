@@ -2,7 +2,7 @@
   var Album, ArgParse, alb, args, async, finder, fs, parser, path, print, src, store, utility,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  fs = require("fs");
+  fs = require("graceful-fs");
 
   path = require("path");
 

@@ -1,7 +1,7 @@
 (function() {
   var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, storeFile, utility;
 
-  fs = require("fs");
+  fs = require("graceful-fs");
 
   path = require("path");
 

@@ -1,5 +1,5 @@
 # Utility functions
-fs = require "fs"
+fs = require "graceful-fs"
 path = require "path"
 
 # split a path into its traversal
@@ -112,9 +112,7 @@ copy = (src, dest, dataCallback, endCallback)->
           ok = destStream.write data
           if not ok
             srcStream.pause()
-            console.log "File buffer overloaded, taking a breather..."
             destStream.once "drain", ()->
-              console.log "...resuming writing."
               srcStream.resume()
           if dataCallback
             dataCallback data, pause: pause, resume: resume

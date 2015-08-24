@@ -1,6 +1,6 @@
 # Save image into file
 
-fs = require "fs"
+fs = require "graceful-fs"
 path = require "path"
 crypto = require "crypto"
 moment = require "moment"

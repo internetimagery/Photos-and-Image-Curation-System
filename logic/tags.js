@@ -1,7 +1,7 @@
 (function() {
   var ArgParse, args, fs, parser, path, print, root, src, tag;
 
-  fs = require("fs");
+  fs = require("graceful-fs");
 
   path = require("path");
 

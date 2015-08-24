@@ -1,7 +1,7 @@
 (function() {
   var cleanRemove, copy, fs, mkdirs, path, pathSplit, searchUp, temp;
 
-  fs = require("fs");
+  fs = require("graceful-fs");
 
   path = require("path");
 
@@ -157,9 +157,7 @@
             ok = destStream.write(data);
             if (!ok) {
               srcStream.pause();
-              console.log("File buffer overloaded, taking a breather...");
               destStream.once("drain", function() {
-                console.log("...resuming writing.");
                 return srcStream.resume();
               });
             }

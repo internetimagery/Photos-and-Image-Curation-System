@@ -1,5 +1,5 @@
 # Albums and their functionality
-fs = require "fs"
+fs = require "graceful-fs"
 path = require "path"
 store = require "./store"
 finder = require "findit"

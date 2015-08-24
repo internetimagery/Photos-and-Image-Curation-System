@@ -1,6 +1,6 @@
 # Tag files linking them in tag folder
 
-fs = require "fs"
+fs = require "graceful-fs"
 path = require "path"
 
 print = (m)->
