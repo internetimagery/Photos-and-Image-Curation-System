@@ -110,9 +110,9 @@
             } else {
               done = function(call) {
                 return cleanRemove(fileDir, function(err) {
-                  if (err) {
+                  if (err && call) {
                     return call(err);
-                  } else {
+                  } else if (call) {
                     return call(null);
                   }
                 });

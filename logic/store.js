@@ -105,13 +105,97 @@
   };
 
   storeFile = function(src, dest, structure, callback) {
-    return utility.temp(dest, function(err, fileDir, fd, done) {
+    return utility.temp(dest, function(err, tmpFile, fd, done) {
+      var hash, srcStream, stop, tmpStream;
       if (err) {
-        callback(err, null);
+        return callback(err, null);
       } else {
-
+        srcStream = fs.createReadStream(src);
+        tmpStream = fs.createWriteStream(tmpFile, {
+          fd: fd
+        });
+        stop = false;
+        hash = crypto.createHash("SHA256");
+        hash.setEncoding("hex");
+        tmpStream.on("error", function(err) {
+          stop = true;
+          done(function(err) {
+            if (err) {
+              return console.log(err.message);
+            }
+          });
+          return callback(err, null);
+        });
+        srcStream.on("error", function(err) {
+          stop = true;
+          return callback(err, null);
+        });
+        srcStream.on("data", function(data) {
+          if (!stop) {
+            tmpStream.write(data);
+            return hash.update(data);
+          }
+        });
+        return srcStream.on("end", function() {
+          if (!stop) {
+            return fs.stat(src, function(err, stats) {
+              var filename;
+              if (err) {
+                done(function(err) {
+                  if (err) {
+                    return console.log(err.message);
+                  }
+                });
+                return callback(err, null);
+              } else {
+                tmpStream.end();
+                hash.end();
+                filename = "" + (hash.read()) + "-" + stats.size + (path.extname(src));
+                return parseDir(src, structure, function(err, dirname) {
+                  var fileDir, filePath;
+                  if (err) {
+                    done(function(err) {
+                      if (err) {
+                        return console.log(err.message);
+                      }
+                    });
+                    return callback(err, null);
+                  } else {
+                    fileDir = path.join(dest, dirname);
+                    filePath = path.join(fileDir, filename);
+                    return utility.mkdirs(fileDir, function(err) {
+                      if (err) {
+                        done(function(err) {
+                          if (err) {
+                            return console.log(err.message);
+                          }
+                        });
+                        return callback(err, null);
+                      } else {
+                        return fs.link(tmpFile, filePath, function(err) {
+                          if (err && err.code !== "EEXIST") {
+                            callback(err, null);
+                          } else if (err) {
+                            console.log("Duplicate: " + src);
+                            callback(null, filePath);
+                          } else {
+                            callback(null, filePath);
+                          }
+                          return done(function(err) {
+                            if (err) {
+                              return console.log(err.message);
+                            }
+                          });
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
       }
-      return console.log(fileDir);
     });
   };
 

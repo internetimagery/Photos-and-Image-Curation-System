@@ -83,7 +83,7 @@ temp = (source, callback)->
           else
             done = (call)-> # Clean up file when done with it
               cleanRemove fileDir, (err)->
-                if err then call err else call null
+                if err and call then call err else if call then call null
             callback null, fileDir, fd, done
       nameCheck time, 0
 

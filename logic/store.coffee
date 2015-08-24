@@ -85,37 +85,61 @@ parseDir = (filePath, structure, callback)->
 # Generate a file path and store the file,
 # Callback (error, filePath)
 storeFile = (src, dest, structure, callback)->
-  utility.temp dest, (err, fileDir, fd, done)->
+  utility.temp dest, (err, tmpFile, fd, done)->
     if err then callback err, null else
-    console.log fileDir
+      srcStream = fs.createReadStream src
+      tmpStream = fs.createWriteStream tmpFile, fd: fd
+      stop = false
+      hash = crypto.createHash "SHA256"
+      hash.setEncoding "hex"
+      tmpStream.on "error", (err)->
+        stop = true
+        done (err)->
+          if err then console.log err.message
+        callback err, null
+      srcStream.on "error", (err)->
+        stop = true
+        callback err, null
+      srcStream.on "data", (data)->
+        if not stop
+          tmpStream.write data
+          hash.update data
+      srcStream.on "end", ()->
+        if not stop
+          fs.stat src, (err, stats)->
+            if err
+              done (err)->
+                if err then console.log err.message
+              callback err, null
+            else
+              tmpStream.end()
+              hash.end()
+              filename = "#{hash.read()}-#{stats.size}#{path.extname src}"
+              parseDir src, structure, (err, dirname)->
+                if err
+                  done (err)->
+                    if err then console.log err.message
+                  callback err, null
+                else
+                  fileDir = path.join dest, dirname
+                  filePath = path.join fileDir, filename
+                  utility.mkdirs fileDir, (err)->
+                    if err
+                      done (err)->
+                        if err then console.log err.message
+                      callback err, null
+                    else
+                      fs.link tmpFile, filePath, (err)->
+                        if err and err.code isnt "EEXIST"
+                          callback err, null
+                        else if err
+                          console.log "Duplicate: #{src}"
+                          callback null, filePath
+                        else
+                          callback null, filePath
+                        done (err)->
+                          if err then console.log err.message
 
-
-  # fs.stat src, (err, srcStats)->
-  #   if err then callback err, null else
-  #     parseDir src, structure, (err, fileDir)->
-  #       if err then console.log err.message
-  #       fs.readFile src, (err, data)->
-  #         if err then callback err, null else
-  #           hash = crypto.createHash "SHA256"
-  #           hash.update data
-  #           fingerprint = hash.digest "hex"
-  #           ext = path.extname src
-  #           filename = "#{fingerprint}-#{srcStats.size}#{ext}"
-  #           fileRoot = path.join dest, fileDir
-  #           filePath = path.join fileRoot, filename
-  #           # Finally got a file path to work with. Now does it exist?
-  #           fs.access filePath, (err)->
-  #             if err and err.code isnt "ENOENT"
-  #               callback err, null
-  #             else if err
-  #               utility.mkdirs fileRoot, (err)->
-  #                 if err then callback err, null else
-  #                   fs.writeFile filePath, data, (err)->
-  #                     if err then callback err, null else
-  #                       callback null, filePath
-  #             else
-  #               console.log "Skipping duplicate: #{filePath}"
-  #               callback null, filePath
 
 # Export module
 exports.storeFile = storeFile
