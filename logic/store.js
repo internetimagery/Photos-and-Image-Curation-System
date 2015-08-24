@@ -107,7 +107,7 @@
             remote.pause();
             return getEXIFData(data, function(err, exifData) {
               if (err) {
-                return console.log("EXIF Warning: " + err.message);
+                return console.log("EXIF Warning: " + err.message + " : " + src);
               } else {
                 exif = exifData;
                 return remote.resume();

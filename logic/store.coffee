@@ -96,7 +96,7 @@ storeFile = (src, dest, structure, callback)->
         if not exif
           remote.pause()
           getEXIFData data, (err, exifData)->
-            if err then console.log "EXIF Warning: #{err.message}" else
+            if err then console.log "EXIF Warning: #{err.message} : #{src}" else
               exif = exifData
               remote.resume()
       , (err)->
