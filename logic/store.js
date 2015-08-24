@@ -124,7 +124,7 @@
             return callback(err);
           } else {
             return fs.stat(src, function(err, stats) {
-              var fileDir, filePath, filename;
+              var ext, fileDir, filePath, filename;
               if (err) {
                 done(function(err) {
                   if (err) {
@@ -135,7 +135,8 @@
               } else {
                 tmpStream.end();
                 hash.end();
-                filename = "" + (hash.read()) + "-" + stats.size + (path.extname(src));
+                ext = path.extname(src);
+                filename = "" + (hash.read()) + "-" + stats.size + (ext.toLowerCase());
                 fileDir = path.join(dest, parseDir(src, structure, stats, exif));
                 filePath = path.join(fileDir, filename);
                 return utility.mkdirs(fileDir, function(err) {
