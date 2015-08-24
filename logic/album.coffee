@@ -144,6 +144,8 @@ parser.addArgument ["-o"],
   action : "storeTrue"
 parser.addArgument ["-i"],
   help : "Insert a photo / image"
+parser.addArgument ["-if"],
+  help : "Import from folder"
 parser.addArgument ["-t"],
   help : "Image to tag and tag name",
   nargs : 2
@@ -187,3 +189,19 @@ else if args.r
       alb.remove src, (err, trashPath)->
         print err
         print trashPath
+else if args.if
+  src = path.resolve args.if
+  alb.open process.cwd(), (err, albumPath)->
+    if err then console.log err.message else
+      search = finder src
+      search.on "file", (file, stat)->
+        ext = path.extname file
+        .toLowerCase()
+        check = [".jpg", ".jpeg", ".png", ".mov", ".mp4"]
+        loc = check.indexOf ext
+        if loc < 0
+          console.log "Skipped: #{file}"
+        else
+          console.log "Adding: #{file}"
+          alb.add file, (err, imgPath)->
+            if err then console.log err.message

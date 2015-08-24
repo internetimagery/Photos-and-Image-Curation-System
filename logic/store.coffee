@@ -110,6 +110,7 @@ storeFile = (src, dest, structure, callback)->
                       if err then callback err, null else
                         callback null, filePath
               else
+                console.log "Skipping duplicate: #{filePath}"
                 callback null, filePath
 
 # Export module
