@@ -11,7 +11,7 @@
 
   utility = require("./utility");
 
-  ExifImage = require("exif").ExifImage;
+  ExifImage = require("exif-makernote-fix").ExifImage;
 
   getEXIFData = function(file, callback) {
     var error;
@@ -90,7 +90,7 @@
 
   storeFile = function(src, dest, structure, callback) {
     return utility.temp(dest, function(err, tmpFile, fd, done) {
-      var exif, exifBuff, hash, srcStream, tmpStream;
+      var exif, hash, srcStream, tmpStream;
       if (err) {
         return callback(err, null);
       } else {
@@ -99,7 +99,6 @@
           fd: fd
         });
         exif = null;
-        exifBuff = null;
         hash = crypto.createHash("SHA256");
         hash.setEncoding("hex");
         return utility.copy(src, tmpFile, function(data, remote) {

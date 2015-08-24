@@ -5,7 +5,7 @@ path = require "path"
 crypto = require "crypto"
 moment = require "moment"
 utility = require "./utility"
-ExifImage = require "exif"
+ExifImage = require "exif-makernote-fix"
             .ExifImage
 
 
@@ -28,7 +28,7 @@ ExifImage = require "exif"
 # Callback (error, exifdata)
 getEXIFData = (file, callback)->
   try
-    new ExifImage image : file , (err, data)-> # problem in here
+    new ExifImage image : file , (err, data)->
       if err then callback err, null else callback null, data
   catch error
     callback error, null
@@ -84,11 +84,15 @@ storeFile = (src, dest, structure, callback)->
       srcStream = fs.createReadStream src
       tmpStream = fs.createWriteStream tmpFile, fd: fd
       exif = null
-      exifBuff = null
+      # exifBuff = []
+      # exifBuffSize = 0
       hash = crypto.createHash "SHA256"
       hash.setEncoding "hex"
       utility.copy src, tmpFile, (data, remote)->
         hash.update data
+        # exifBuff.push data
+        # exifBuffSize += data.length
+        # console.log exifBuff.length
         if not exif
           remote.pause()
           getEXIFData data, (err, exifData)->

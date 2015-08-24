@@ -14,7 +14,7 @@
     "electron-prebuilt": "^0.30.4"
   },
   "dependencies": {
-    "exif": "^0.4.0",
+    "exif-makernote-fix": "^0.1.0",
     "findit": "^2.0.0",
     "font-awesome": "^4.4.0",
     "moment": "^2.10.6",
