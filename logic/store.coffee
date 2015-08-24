@@ -82,36 +82,40 @@ parseDir = (filePath, structure, callback)->
         callback null, tokenPath.replace /[\<\>\:\"\'\|]/, ""
         # Sanitize file dir
 
-# Generate a file path to store the file,
-# Callback (error, {temp: "path to tempfile", dest: "relative proposed path"})
-# and a staging area path that holds a copy of the file
+# Generate a file path and store the file,
+# Callback (error, filePath)
 storeFile = (src, dest, structure, callback)->
-  fs.stat src, (err, srcStats)->
+  utility.temp dest, (err, fileDir, fd, done)->
     if err then callback err, null else
-      parseDir src, structure, (err, fileDir)->
-        if err then console.log err.message
-        fs.readFile src, (err, data)->
-          if err then callback err, null else
-            hash = crypto.createHash "SHA256"
-            hash.update data
-            fingerprint = hash.digest "hex"
-            ext = path.extname src
-            filename = "#{fingerprint}-#{srcStats.size}#{ext}"
-            fileRoot = path.join dest, fileDir
-            filePath = path.join fileRoot, filename
-            # Finally got a file path to work with. Now does it exist?
-            fs.access filePath, (err)->
-              if err and err.code isnt "ENOENT"
-                callback err, null
-              else if err
-                utility.mkdirs fileRoot, (err)->
-                  if err then callback err, null else
-                    fs.writeFile filePath, data, (err)->
-                      if err then callback err, null else
-                        callback null, filePath
-              else
-                console.log "Skipping duplicate: #{filePath}"
-                callback null, filePath
+    console.log fileDir
+
+
+  # fs.stat src, (err, srcStats)->
+  #   if err then callback err, null else
+  #     parseDir src, structure, (err, fileDir)->
+  #       if err then console.log err.message
+  #       fs.readFile src, (err, data)->
+  #         if err then callback err, null else
+  #           hash = crypto.createHash "SHA256"
+  #           hash.update data
+  #           fingerprint = hash.digest "hex"
+  #           ext = path.extname src
+  #           filename = "#{fingerprint}-#{srcStats.size}#{ext}"
+  #           fileRoot = path.join dest, fileDir
+  #           filePath = path.join fileRoot, filename
+  #           # Finally got a file path to work with. Now does it exist?
+  #           fs.access filePath, (err)->
+  #             if err and err.code isnt "ENOENT"
+  #               callback err, null
+  #             else if err
+  #               utility.mkdirs fileRoot, (err)->
+  #                 if err then callback err, null else
+  #                   fs.writeFile filePath, data, (err)->
+  #                     if err then callback err, null else
+  #                       callback null, filePath
+  #             else
+  #               console.log "Skipping duplicate: #{filePath}"
+  #               callback null, filePath
 
 # Export module
 exports.storeFile = storeFile

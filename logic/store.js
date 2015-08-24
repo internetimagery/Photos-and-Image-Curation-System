@@ -105,52 +105,13 @@
   };
 
   storeFile = function(src, dest, structure, callback) {
-    return fs.stat(src, function(err, srcStats) {
+    return utility.temp(dest, function(err, fileDir, fd, done) {
       if (err) {
-        return callback(err, null);
+        callback(err, null);
       } else {
-        return parseDir(src, structure, function(err, fileDir) {
-          if (err) {
-            console.log(err.message);
-          }
-          return fs.readFile(src, function(err, data) {
-            var ext, filePath, fileRoot, filename, fingerprint, hash;
-            if (err) {
-              return callback(err, null);
-            } else {
-              hash = crypto.createHash("SHA256");
-              hash.update(data);
-              fingerprint = hash.digest("hex");
-              ext = path.extname(src);
-              filename = "" + fingerprint + "-" + srcStats.size + ext;
-              fileRoot = path.join(dest, fileDir);
-              filePath = path.join(fileRoot, filename);
-              return fs.access(filePath, function(err) {
-                if (err && err.code !== "ENOENT") {
-                  return callback(err, null);
-                } else if (err) {
-                  return utility.mkdirs(fileRoot, function(err) {
-                    if (err) {
-                      return callback(err, null);
-                    } else {
-                      return fs.writeFile(filePath, data, function(err) {
-                        if (err) {
-                          return callback(err, null);
-                        } else {
-                          return callback(null, filePath);
-                        }
-                      });
-                    }
-                  });
-                } else {
-                  console.log("Skipping duplicate: " + filePath);
-                  return callback(null, filePath);
-                }
-              });
-            }
-          });
-        });
+
       }
+      return console.log(fileDir);
     });
   };
 

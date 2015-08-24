@@ -63,7 +63,33 @@ cleanRemove = (filePath, callback)->
     if err then callback err, null else
       remove 0
 
+# Create a teporary file in the specified folder
+# Callback (error, filename, fd, done) - done = removal function to be called
+# Callback done (error)
+temp = (source, callback)->
+  tmpRoot = path.join source, "tmp"
+  mkdirs tmpRoot, (err)->
+    if err then callback err, null else
+      time = parseInt Date.now() * Math.random()
+      # suffix = if suffix then suffix else ".tmp"
+      nameCheck = (name)->
+        filename = name + ".tmp"
+        fileDir = path.join tmpRoot, filename
+        fs.open fileDir, "wx", (err, fd)->
+          if err and err.code isnt "EEXIST"
+            callback err, null, null, null
+          else if err
+            nameCheck name - 1
+          else
+            done = (call)-> # Clean up file when done with it
+              cleanRemove fileDir, (err)->
+                if err then call err else call null
+            callback null, fileDir, fd, done
+      nameCheck time, 0
+
+
 # Export functions
 exports.searchUp = searchUp
 exports.mkdirs = mkdirs
 exports.cleanRemove = cleanRemove
+exports.temp = temp
