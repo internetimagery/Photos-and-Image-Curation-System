@@ -79,6 +79,28 @@ $button-width: 50px
         background-color: $colour4
         color: $colour2
         cursor: default
+      &.active
+        &:hover
+          background-color: $colour2
+  filetree
+    display: block
+    node
+      background-color: $colour4
+      display: block
+      padding: 5px
+      position: relative
+      border-top: solid rgba(255, 255, 255, 0.8) 1px
+      border-bottom: solid rgba(0, 0, 0, 0.5) 1px
+      &::before
+        // content: "\f16c"
+        content: "A"
+        text-align: center
+        display: inline-block
+        width: 30px
+        height: 30px
+        background-color: $colour1
+        border-bottom: solid rgba(255, 255, 255, 0.8) 1px
+        border-top: solid rgba(0, 0, 0, 0.5) 1px
 
 
 
