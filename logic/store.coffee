@@ -24,9 +24,6 @@ ExifImage = require "exif"
 # <size>
 # <model>
 
-print = (m)->
-  console.dir m
-
 # Get exif data from an image
 # Callback (error, exifdata)
 getEXIFData = (file, callback)->
@@ -157,5 +154,5 @@ exports.storeFile = storeFile
 #
 # src = path.resolve args.source
 # storeFile src, args.structure, (err, dir)->
-#   print err
-#   print dir
+#   console.dir err
+#   console.dir dir

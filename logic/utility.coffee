@@ -53,7 +53,7 @@ cleanRemove = (filePath, callback)->
   remove = (index)->
     if index < paths.length
       fs.rmdir paths[index], (err)->
-        if err and err.code isnt "ENOTEMPTY"
+        if err and err.code isnt "ENOTEMPTY" and err.code isnt "ENOENT"
           callback err
         else if err
           callback()

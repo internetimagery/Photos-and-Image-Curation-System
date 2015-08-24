@@ -69,7 +69,7 @@
     remove = function(index) {
       if (index < paths.length) {
         return fs.rmdir(paths[index], function(err) {
-          if (err && err.code !== "ENOTEMPTY") {
+          if (err && err.code !== "ENOTEMPTY" && err.code !== "ENOENT") {
             return callback(err);
           } else if (err) {
             return callback();

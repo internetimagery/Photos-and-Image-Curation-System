@@ -1,5 +1,5 @@
 (function() {
-  var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, print, storeFile, utility;
+  var ExifImage, crypto, fs, getEXIFData, moment, parseDir, path, storeFile, utility;
 
   fs = require("fs");
 
@@ -12,10 +12,6 @@
   utility = require("./utility");
 
   ExifImage = require("exif").ExifImage;
-
-  print = function(m) {
-    return console.dir(m);
-  };
 
   getEXIFData = function(file, callback) {
     var error;
