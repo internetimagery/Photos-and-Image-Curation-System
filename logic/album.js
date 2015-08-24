@@ -1,5 +1,6 @@
 (function() {
-  var Album, ArgParse, alb, args, finder, fs, parser, path, print, src, store, utility;
+  var Album, ArgParse, alb, args, async, finder, fs, parser, path, print, src, store, utility,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   fs = require("fs");
 
@@ -11,12 +12,19 @@
 
   utility = require("./utility");
 
+  async = require("async");
+
   print = function(m) {
     return console.dir(m);
   };
 
   Album = (function() {
     function Album() {
+      this.remove = __bind(this.remove, this);
+      this.tag = __bind(this.tag, this);
+      this.add = __bind(this.add, this);
+      this.open = __bind(this.open, this);
+      this["new"] = __bind(this["new"], this);
       this.root = "";
       this.structName = "structure.album";
       this.structSettings = {
@@ -293,10 +301,11 @@
   } else if (args["if"]) {
     src = path.resolve(args["if"]);
     alb.open(process.cwd(), function(err, albumPath) {
-      var search;
+      var files, search;
       if (err) {
         return console.log(err.message);
       } else {
+        files = [];
         search = finder(src);
         return search.on("file", function(file, stat) {
           var check, ext, loc;
@@ -304,13 +313,13 @@
           check = [".jpg", ".jpeg", ".png", ".mov", ".mp4"];
           loc = check.indexOf(ext);
           if (loc < 0) {
-            return console.log("Skipped: " + file);
+
           } else {
-            console.log("Adding: " + file);
             return alb.add(file, function(err, imgPath) {
               if (err) {
-                return console.log(err.message);
+                console.log(err.message);
               }
+              return console.log(imgPath);
             });
           }
         });

@@ -83,28 +83,24 @@ storeFile = (src, dest, structure, callback)->
     if err then callback err, null else
       srcStream = fs.createReadStream src
       tmpStream = fs.createWriteStream tmpFile, fd: fd
-      stop = false
       exif = null
+      exifBuff = null
       hash = crypto.createHash "SHA256"
       hash.setEncoding "hex"
-      tmpStream.on "error", (err)->
-        stop = true
-        done (err)->
-          if err then console.log err.message
-        callback err, null
-      srcStream.on "error", (err)->
-        stop = true
-        callback err, null
-      srcStream.on "data", (data)->
-        if not stop
-          tmpStream.write data
-          hash.update data
-          if not exif
-            getEXIFData data, (err, exifData)->
-              if err then console.log "EXIF Warning: #{err.message}"
-              exif = exifData
-      srcStream.on "end", ()->
-        if not stop
+      utility.copy src, tmpFile, (data, remote)->
+        hash.update data
+      #     if not exif
+      #       remote.pause()
+      #       getEXIFData data, (err, exifData)->
+      #         if err then console.log "EXIF Warning: #{err.message}"
+      #         exif = exifData
+      #         remote.resume()
+      , (err)->
+        if err
+          done (err)->
+            if err then console.log err.message
+          callback err
+        else
           fs.stat src, (err, stats)->
             if err
               done (err)->

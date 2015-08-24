@@ -1,5 +1,5 @@
 (function() {
-  var cleanRemove, fs, mkdirs, path, pathSplit, searchUp, temp;
+  var cleanRemove, copy, fs, mkdirs, path, pathSplit, searchUp, temp;
 
   fs = require("fs");
 
@@ -126,6 +126,61 @@
     });
   };
 
+  copy = function(src, dest, dataCallback, endCallback) {
+    return fs.stat(dest, function(err, stats) {
+      var data, destStream, end, error, running, srcStream;
+      if (err && endCallback) {
+        return endCallback(err);
+      } else {
+        if (stats.isDirectory()) {
+          src = path.join(dest, path.basename(src));
+        }
+        srcStream = fs.createReadStream(src);
+        destStream = fs.createWriteStream(dest);
+        running = true;
+        error = function(err) {
+          running = false;
+          destStream.end();
+          if (endCallback) {
+            return endCallback(err);
+          }
+        };
+        data = function(data) {
+          var ok;
+          if (running) {
+            ok = destStream.write(data);
+            if (!ok) {
+              srcStream.pause();
+              console.log("File buffer overloaded, taking a breather...");
+              destStream.once("drain", function() {
+                console.log("...resuming writing.");
+                return srcStream.resume();
+              });
+            }
+            if (dataCallback) {
+              return dataCallback(data, {
+                pause: srcStream.pause,
+                resume: srcStream.resume
+              });
+            }
+          }
+        };
+        end = function() {
+          if (running) {
+            destStream.end();
+            if (endCallback) {
+              return endCallback(null);
+            }
+          }
+        };
+        srcStream.on("error", error);
+        destStream.on("error", error);
+        srcStream.on("data", data);
+        return srcStream.on("end", end);
+      }
+    });
+  };
+
   exports.searchUp = searchUp;
 
   exports.mkdirs = mkdirs;
@@ -133,5 +188,7 @@
   exports.cleanRemove = cleanRemove;
 
   exports.temp = temp;
+
+  exports.copy = copy;
 
 }).call(this);

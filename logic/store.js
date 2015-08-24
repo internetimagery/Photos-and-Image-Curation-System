@@ -90,7 +90,7 @@
 
   storeFile = function(src, dest, structure, callback) {
     return utility.temp(dest, function(err, tmpFile, fd, done) {
-      var exif, hash, srcStream, stop, tmpStream;
+      var exif, exifBuff, hash, srcStream, tmpStream;
       if (err) {
         return callback(err, null);
       } else {
@@ -98,39 +98,21 @@
         tmpStream = fs.createWriteStream(tmpFile, {
           fd: fd
         });
-        stop = false;
         exif = null;
+        exifBuff = null;
         hash = crypto.createHash("SHA256");
         hash.setEncoding("hex");
-        tmpStream.on("error", function(err) {
-          stop = true;
-          done(function(err) {
-            if (err) {
-              return console.log(err.message);
-            }
-          });
-          return callback(err, null);
-        });
-        srcStream.on("error", function(err) {
-          stop = true;
-          return callback(err, null);
-        });
-        srcStream.on("data", function(data) {
-          if (!stop) {
-            tmpStream.write(data);
-            hash.update(data);
-            if (!exif) {
-              return getEXIFData(data, function(err, exifData) {
-                if (err) {
-                  console.log("EXIF Warning: " + err.message);
-                }
-                return exif = exifData;
-              });
-            }
-          }
-        });
-        return srcStream.on("end", function() {
-          if (!stop) {
+        return utility.copy(src, tmpFile, function(data, remote) {
+          return hash.update(data);
+        }, function(err) {
+          if (err) {
+            done(function(err) {
+              if (err) {
+                return console.log(err.message);
+              }
+            });
+            return callback(err);
+          } else {
             return fs.stat(src, function(err, stats) {
               var fileDir, filePath, filename;
               if (err) {

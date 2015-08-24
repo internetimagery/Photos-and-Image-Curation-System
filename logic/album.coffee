@@ -5,6 +5,8 @@ store = require "./store"
 finder = require "findit"
 utility = require "./utility"
 
+async = require "async"
+
 print = (m)->
   console.dir m
 
@@ -22,7 +24,7 @@ class Album
 
   # Create a new Album with optional overrides to the default settings
   # Callback (error, albumpath)
-  new : (rootDir, overrides, callback)->
+  new : (rootDir, overrides, callback)=>
     # console.log "Attempting to create album in #{@root}"
     # Override defaults
     if overrides?
@@ -47,7 +49,7 @@ class Album
 
   # Open an existing album
   # Callback (error, albumpath)
-  open : (rootDir, callback)->
+  open : (rootDir, callback)=>
     utility.searchUp @structName, rootDir, (err, filePath)=>
       if err then callback err, null
       else if filePath
@@ -67,7 +69,7 @@ class Album
 
   # Insert image into album
   # Callback (error, imagePath)
-  add : (imagePath, callback)->
+  add : (imagePath, callback)=>
     if @root
       imgRoot = path.join @root, @structSettings.image_root
       # Get path to the image
@@ -82,7 +84,7 @@ class Album
 
   # Tag an image in the collection
   # Callback (error, tagPath)
-  tag : (imagePath, tagName, callback)->
+  tag : (imagePath, tagName, callback)=>
     if @root
       tagDir = path.join @root, @structSettings.tag_root, tagName
       tagPath = path.join tagDir, path.basename imagePath
@@ -99,7 +101,7 @@ class Album
 
   # Remove image from album
   # Callback (error, trashPath)
-  remove : (imagePath, callback)->
+  remove : (imagePath, callback)=>
     if @root
       fs.stat imagePath, (err, stats)=>
         if err then callback err, null else
@@ -193,6 +195,7 @@ else if args.if
   src = path.resolve args.if
   alb.open process.cwd(), (err, albumPath)->
     if err then console.log err.message else
+      files = []
       search = finder src
       search.on "file", (file, stat)->
         ext = path.extname file
@@ -200,8 +203,21 @@ else if args.if
         check = [".jpg", ".jpeg", ".png", ".mov", ".mp4"]
         loc = check.indexOf ext
         if loc < 0
-          console.log "Skipped: #{file}"
+          # console.log "Skipped: #{file}"
         else
-          console.log "Adding: #{file}"
+          # console.log "Adding: #{file}"
           alb.add file, (err, imgPath)->
             if err then console.log err.message
+            console.log imgPath
+          # files.push file
+      # search.on "end", ()->
+      #   count = 0
+      #   async.each files, alb.add, (err)->
+      #     console.log err
+
+          #  (err, imgPath)->
+          # if err then console.log err.message
+
+
+          # alb.add file, (err, imgPath)->
+          #   if err then console.log err.message

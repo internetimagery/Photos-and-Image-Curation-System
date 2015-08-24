@@ -87,9 +87,47 @@ temp = (source, callback)->
             callback null, fileDir, fd, done
       nameCheck time, 0
 
+# Pipe an input into an output while exposing the data along the way
+# Callback, data (data, controls) - data as it's streamed, controls to pause
+# Callback, end (error) - finished
+copy = (src, dest, dataCallback, endCallback)->
+  fs.stat dest, (err, stats)->
+    if err and endCallback then endCallback err else
+      if stats.isDirectory()
+        src = path.join dest, path.basename src
+      srcStream = fs.createReadStream src
+      destStream = fs.createWriteStream dest
+      running = true
+      error = (err)->
+        running = false
+        destStream.end()
+        if endCallback
+          endCallback err
+      data = (data)->
+        if running
+          ok = destStream.write data
+          if not ok
+            srcStream.pause()
+            console.log "File buffer overloaded, taking a breather..."
+            destStream.once "drain", ()->
+              console.log "...resuming writing."
+              srcStream.resume()
+          if dataCallback
+            dataCallback data, pause: srcStream.pause, resume: srcStream.resume
+      end = ()->
+        if running
+          destStream.end()
+          if endCallback
+            endCallback null
+      srcStream.on "error", error
+      destStream.on "error", error
+      srcStream.on "data", data
+      srcStream.on "end", end
+
 
 # Export functions
 exports.searchUp = searchUp
 exports.mkdirs = mkdirs
 exports.cleanRemove = cleanRemove
 exports.temp = temp
+exports.copy = copy
