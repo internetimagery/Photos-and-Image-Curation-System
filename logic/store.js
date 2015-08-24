@@ -35,78 +35,66 @@
     }
   };
 
-  parseDir = function(filePath, structure, callback) {
-    return getEXIFData(filePath, function(err, exif) {
-      if (err) {
-        console.log("EXIF Warning: " + err.message);
-      }
-      return fs.stat(filePath, function(err, stats) {
-        var creation, dateTime, match, parseToken, pointer, reg, tokenPath;
-        if (err) {
-          return callback(err, null);
-        } else {
-          creation = stats.birthtime;
-          reg = /^(\d+):(\d+):(\d+)(.+)/;
-          if (exif && exif.exif.DateTimeOriginal) {
-            creation = new Date(exif.exif.DateTimeOriginal.replace(reg, "$1/$2/$3 $4"));
-          } else if (exif && exif.exif.CreateDate) {
-            creation = new Date(exif.exif.CreateDate.replace(reg, "$1/$2/$3 $4"));
-          }
-          dateTime = moment(creation);
-          parseToken = function(token) {
-            var replaced;
-            return replaced = (function() {
-              switch (token) {
-                case "year":
-                  return dateTime.format("YYYY");
-                case "month":
-                  return dateTime.format("MM");
-                case "monthname":
-                  return dateTime.format("MMMM");
-                case "day":
-                  return dateTime.format("DD");
-                case "dayname":
-                  return dateTime.format("dddd");
-                case "12hour":
-                  return dateTime.format("hha");
-                case "24hour":
-                  return dateTime.format("HH");
-                case "minute":
-                  return dateTime.format("mm");
-                case "second":
-                  return dateTime.format("ss");
-                case "millisecond":
-                  return dateTime.format("SSS");
-                case "size":
-                  return stats.size;
-                case "model":
-                  if (exif && exif.image.Model) {
-                    return exif.image.Model;
-                  }
-                  break;
-                default:
-                  return "unknown";
-              }
-            })();
-          };
-          reg = /<(\w+)>/g;
-          tokenPath = "";
-          pointer = 0;
-          while (match = reg.exec(structure)) {
-            tokenPath += structure.substr(pointer, match.index - pointer);
-            pointer = match.index + match[0].length;
-            tokenPath += parseToken(match[1]);
-          }
-          tokenPath += structure.substr(pointer, structure.length - pointer);
-          return callback(null, tokenPath.replace(/[\<\>\:\"\'\|]/, ""));
+  parseDir = function(filePath, structure, stats, exif) {
+    var creation, dateTime, match, parseToken, pointer, reg, tokenPath;
+    creation = stats.birthtime;
+    reg = /^(\d+):(\d+):(\d+)(.+)/;
+    if (exif && exif.exif.DateTimeOriginal) {
+      creation = new Date(exif.exif.DateTimeOriginal.replace(reg, "$1/$2/$3 $4"));
+    } else if (exif && exif.exif.CreateDate) {
+      creation = new Date(exif.exif.CreateDate.replace(reg, "$1/$2/$3 $4"));
+    }
+    dateTime = moment(creation);
+    parseToken = function(token) {
+      var replaced;
+      return replaced = (function() {
+        switch (token) {
+          case "year":
+            return dateTime.format("YYYY");
+          case "month":
+            return dateTime.format("MM");
+          case "monthname":
+            return dateTime.format("MMMM");
+          case "day":
+            return dateTime.format("DD");
+          case "dayname":
+            return dateTime.format("dddd");
+          case "12hour":
+            return dateTime.format("hha");
+          case "24hour":
+            return dateTime.format("HH");
+          case "minute":
+            return dateTime.format("mm");
+          case "second":
+            return dateTime.format("ss");
+          case "millisecond":
+            return dateTime.format("SSS");
+          case "size":
+            return stats.size;
+          case "model":
+            if (exif && exif.image.Model) {
+              return exif.image.Model;
+            } else {
+              return "unknown";
+            }
         }
-      });
-    });
+      })();
+    };
+    reg = /<(\w+)>/g;
+    tokenPath = "";
+    pointer = 0;
+    while (match = reg.exec(structure)) {
+      tokenPath += structure.substr(pointer, match.index - pointer);
+      pointer = match.index + match[0].length;
+      tokenPath += parseToken(match[1]);
+    }
+    tokenPath += structure.substr(pointer, structure.length - pointer);
+    return tokenPath.replace(/[\<\>\:\"\'\|]/, "");
   };
 
   storeFile = function(src, dest, structure, callback) {
     return utility.temp(dest, function(err, tmpFile, fd, done) {
-      var hash, srcStream, stop, tmpStream;
+      var exif, hash, srcStream, stop, tmpStream;
       if (err) {
         return callback(err, null);
       } else {
@@ -115,6 +103,7 @@
           fd: fd
         });
         stop = false;
+        exif = null;
         hash = crypto.createHash("SHA256");
         hash.setEncoding("hex");
         tmpStream.on("error", function(err) {
@@ -133,13 +122,21 @@
         srcStream.on("data", function(data) {
           if (!stop) {
             tmpStream.write(data);
-            return hash.update(data);
+            hash.update(data);
+            if (!exif) {
+              return getEXIFData(data, function(err, exifData) {
+                if (err) {
+                  console.log("EXIF Warning: " + err.message);
+                }
+                return exif = exifData;
+              });
+            }
           }
         });
         return srcStream.on("end", function() {
           if (!stop) {
             return fs.stat(src, function(err, stats) {
-              var filename;
+              var fileDir, filePath, filename;
               if (err) {
                 done(function(err) {
                   if (err) {
@@ -151,8 +148,9 @@
                 tmpStream.end();
                 hash.end();
                 filename = "" + (hash.read()) + "-" + stats.size + (path.extname(src));
-                return parseDir(src, structure, function(err, dirname) {
-                  var fileDir, filePath;
+                fileDir = path.join(dest, parseDir(src, structure, stats, exif));
+                filePath = path.join(fileDir, filename);
+                return utility.mkdirs(fileDir, function(err) {
                   if (err) {
                     done(function(err) {
                       if (err) {
@@ -161,33 +159,20 @@
                     });
                     return callback(err, null);
                   } else {
-                    fileDir = path.join(dest, dirname);
-                    filePath = path.join(fileDir, filename);
-                    return utility.mkdirs(fileDir, function(err) {
-                      if (err) {
-                        done(function(err) {
-                          if (err) {
-                            return console.log(err.message);
-                          }
-                        });
-                        return callback(err, null);
+                    return fs.link(tmpFile, filePath, function(err) {
+                      if (err && err.code !== "EEXIST") {
+                        callback(err, null);
+                      } else if (err) {
+                        console.log("Duplicate: " + src);
+                        callback(null, filePath);
                       } else {
-                        return fs.link(tmpFile, filePath, function(err) {
-                          if (err && err.code !== "EEXIST") {
-                            callback(err, null);
-                          } else if (err) {
-                            console.log("Duplicate: " + src);
-                            callback(null, filePath);
-                          } else {
-                            callback(null, filePath);
-                          }
-                          return done(function(err) {
-                            if (err) {
-                              return console.log(err.message);
-                            }
-                          });
-                        });
+                        callback(null, filePath);
                       }
+                      return done(function(err) {
+                        if (err) {
+                          return console.log(err.message);
+                        }
+                      });
                     });
                   }
                 });
