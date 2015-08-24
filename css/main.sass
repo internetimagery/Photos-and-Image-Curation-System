@@ -2,16 +2,18 @@
 
 // Colour Swatch
 
-// Light Blue
-$colour1: #82A5B4
-// Blue
-$colour2: #43709C
-// Black
-$colour3: #232323
-// Grey
-$colour4: #B6C8C8
+// Dark Green
+$colour1: #999967
+// Dark Grey
+$colour2: #666666
 // Light Grey
-$colour5: #C2D3D1
+$colour3: #CCCCCC
+// light green
+$colour4: #CCCC9A
+// Black
+$black: #232323
+// White
+$white: #F2F2F2
 
 // Body
 #main-window
@@ -30,25 +32,27 @@ button
 $divider-size: 300px
 // Side Bar
 #sidebar-wrapper
-  background-color: $colour2
-  color: $colour5
+  background-color: $colour1
+  background-image: url("../img/white_leather/white_leather.png")
+  color: $black
   left: 0px
   width: $divider-size
   overflow: hidden
 
 // Main Window
 #main-wrapper
-  background-color: $colour3
+  background-color: $black
   background-image: url("../img/slash_it/slash_it.png")
-  color: black
+  color: $black
   left: $divider-size
   right: 0px
-  border: solid $colour5 3px
+  border-left: dashed $colour2 1px
   box-shadow: inset 0px 0px 50px black
 
 #show-hide-sidebar
-  background-color: $colour5
-  color: $colour3
+  background-color: $white
+  background-image: url("../img/white_leather/white_leather.png")
+  color: $black
   display: inline-block
   padding: 10px
   border-bottom-right-radius: 10px
@@ -56,7 +60,7 @@ $divider-size: 300px
   border-right: solid rgba(255, 255, 255, 0.5) 1px
   position: absolute
   top: 0px
-  left: 0px
+  left: -1px
   text-shadow: 0px 1px 0px white
   &::before
     content: ""
@@ -82,13 +86,14 @@ $import-height: 50px
 #import-file
   height: $import-height
   width: $import-height
-  background-color: $colour2
+  background-color: $colour1
   display: inline-block
   position: relative
   overflow: hidden
   border-radius: 10px
-  color: $colour3
+  color: $black
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.5)
+  border-bottom: solid $black 1px
   &::before
     content: ""
     display: inline-block
