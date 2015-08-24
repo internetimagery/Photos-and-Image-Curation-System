@@ -28,7 +28,7 @@ ExifImage = require "exif"
 # Callback (error, exifdata)
 getEXIFData = (file, callback)->
   try
-    new ExifImage image : file , (err, data)->
+    new ExifImage image : file , (err, data)-> # problem in here
       if err then callback err, null else callback null, data
   catch error
     callback error, null
@@ -89,12 +89,12 @@ storeFile = (src, dest, structure, callback)->
       hash.setEncoding "hex"
       utility.copy src, tmpFile, (data, remote)->
         hash.update data
-      #     if not exif
-      #       remote.pause()
-      #       getEXIFData data, (err, exifData)->
-      #         if err then console.log "EXIF Warning: #{err.message}"
-      #         exif = exifData
-      #         remote.resume()
+        if not exif
+          remote.pause()
+          getEXIFData data, (err, exifData)->
+            if err then console.log "EXIF Warning: #{err.message}" else
+              exif = exifData
+              remote.resume()
       , (err)->
         if err
           done (err)->

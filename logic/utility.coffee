@@ -98,6 +98,10 @@ copy = (src, dest, dataCallback, endCallback)->
       srcStream = fs.createReadStream src
       destStream = fs.createWriteStream dest
       running = true
+      pause = ()->
+        srcStream.pause()
+      resume = ()->
+        srcStream.resume()
       error = (err)->
         running = false
         destStream.end()
@@ -113,7 +117,7 @@ copy = (src, dest, dataCallback, endCallback)->
               console.log "...resuming writing."
               srcStream.resume()
           if dataCallback
-            dataCallback data, pause: srcStream.pause, resume: srcStream.resume
+            dataCallback data, pause: pause, resume: resume
       end = ()->
         if running
           destStream.end()

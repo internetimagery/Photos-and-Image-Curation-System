@@ -103,7 +103,18 @@
         hash = crypto.createHash("SHA256");
         hash.setEncoding("hex");
         return utility.copy(src, tmpFile, function(data, remote) {
-          return hash.update(data);
+          hash.update(data);
+          if (!exif) {
+            remote.pause();
+            return getEXIFData(data, function(err, exifData) {
+              if (err) {
+                return console.log("EXIF Warning: " + err.message);
+              } else {
+                exif = exifData;
+                return remote.resume();
+              }
+            });
+          }
         }, function(err) {
           if (err) {
             done(function(err) {

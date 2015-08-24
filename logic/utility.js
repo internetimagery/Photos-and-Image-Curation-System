@@ -128,7 +128,7 @@
 
   copy = function(src, dest, dataCallback, endCallback) {
     return fs.stat(dest, function(err, stats) {
-      var data, destStream, end, error, running, srcStream;
+      var data, destStream, end, error, pause, resume, running, srcStream;
       if (err && endCallback) {
         return endCallback(err);
       } else {
@@ -138,6 +138,12 @@
         srcStream = fs.createReadStream(src);
         destStream = fs.createWriteStream(dest);
         running = true;
+        pause = function() {
+          return srcStream.pause();
+        };
+        resume = function() {
+          return srcStream.resume();
+        };
         error = function(err) {
           running = false;
           destStream.end();
@@ -159,8 +165,8 @@
             }
             if (dataCallback) {
               return dataCallback(data, {
-                pause: srcStream.pause,
-                resume: srcStream.resume
+                pause: pause,
+                resume: resume
               });
             }
           }
